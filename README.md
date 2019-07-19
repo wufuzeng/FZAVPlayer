@@ -56,34 +56,34 @@ pod 'FZAVPlayer'
 ```objective-c
 
 - (void)viewDidLoad {
-[super viewDidLoad];
-NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"Test"  ofType:@"mov"]];
-self.player.title = @"屌丝男士";
-[self.player playWithUrl:url];
+    [super viewDidLoad];
+    NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle]  pathForResource:@"Test"  ofType:@"mov"]];
+    self.player.title = @"屌丝男士";
+    [self.playerView playWithUrl:url];
 }
 
 -(void)viewDidAppear:(BOOL)animated{
-[super viewDidAppear:animated];
-[self.player play];
+    [super viewDidAppear:animated];
+    [self.playerView play];
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
-[super viewWillDisappear:animated];
-[self.player stop]; 
+    [super viewWillDisappear:animated];
+    [self.playerView stop]; 
 }
 
--(FZAVPlayer *)player{
-if (_player == nil) {
-_player = [[FZAVPlayer alloc]initWithFrame:CGRectMake(0, 200, [UIScreen  mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width)];
-self.player.showControlView = YES;
-self.player.showTitleBar = YES;
-self.player.showBackBtn = NO;
-self.player.autoReplay = YES;
-self.player.disableFullScreen = NO;
-self.player.videoGravity = AVLayerVideoGravityResizeAspectFill;
-self.player.showInView = self.view;
-}
-return _player;
+-(FZAVPlayerView *)playerView{
+    if (_playerView == nil) {
+        _playerView = [[FZAVPlayerView alloc]initWithFrame:CGRectMake(0, 200,   [UIScreen  mainScreen].bounds.size.width, [UIScreen     mainScreen].bounds.size.width)];
+        _playerView.showControlView = YES;
+        _playerView.showTitleBar = YES;
+        _playerView.showBackBtn = NO;
+        _playerView.autoReplay = YES;
+        _playerView.disableFullScreen = NO;
+        _playerView.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        _playerView.showInView = self.view;
+    }
+    return _playerView;
 }
 
 ```

@@ -10,7 +10,7 @@
 
 #import <FZAVPlayer.h>
 @interface FZViewController ()
-    @property (nonatomic,strong) FZAVPlayerView *player;
+    @property (nonatomic,strong) FZAVPlayerView *playerView;
     
     @property (nonatomic,strong) UIScrollView *scrollView;
     
@@ -24,14 +24,14 @@
     [self scrollView];
     //    NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loginvideo" ofType:@"mp4"]];
     NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"Test" ofType:@"mov"]];
-    self.player.title = @"屌丝男士";
-    [self.player playWithUrl:url];
+    self.playerView.title = @"屌丝男士";
+    [self.playerView playWithUrl:url];
 }
     
 -(void)viewDidDisappear:(BOOL)animated{
     [super viewDidDisappear:animated];
     
-    [self.player stop];
+    [self.playerView stop];
 }
     
 -(void)dealloc{
@@ -40,14 +40,14 @@
     
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-    [self.player play];
+    [self.playerView play];
     
     
 }
     
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
-    [self.player pause];
+    [self.playerView pause];
     
     
 }
@@ -66,19 +66,19 @@
 }
     
     
--(FZAVPlayerView *)player{
-    if (_player == nil) {
-        _player = [[FZAVPlayerView alloc]initWithFrame:CGRectMake(0, 200, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width)];
-        self.player.showControlView = YES;
-        self.player.showTitleBar = YES;
-        self.player.showBackBtn = NO;
-        self.player.autoReplay = YES;
-        self.player.disableFullScreen = NO;
-        self.player.disableAdjustBrightnessOrVolume = YES;
-        self.player.videoGravity = AVLayerVideoGravityResizeAspect;
-        self.player.showInView = self.scrollView;
+-(FZAVPlayerView *)playerView{
+    if (_playerView == nil) {
+        _playerView = [[FZAVPlayerView alloc]initWithFrame:CGRectMake(0, 200, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width)];
+        _playerView.showControlView = YES;
+        _playerView.showTitleBar = YES;
+        _playerView.showBackBtn = NO;
+        _playerView.autoReplay = YES;
+        _playerView.disableFullScreen = NO;
+        _playerView.disableAdjustBrightnessOrVolume = YES;
+        _playerView.videoGravity = AVLayerVideoGravityResizeAspect;
+        _playerView.showInView = self.scrollView;
     }
-    return _player;
+    return _playerView;
 }
     
     @end
