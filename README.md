@@ -1,22 +1,19 @@
 
 # 你刚好需要，我刚好出现，请赏一颗小星星.
 
-<p align="center" >
+ 
 
-</p>
+<div>
 
 横屏效果：
 <br />
+<div>
 <img src="https://github.com/wufuzeng/FZAVPlayer/blob/master/Screenshots/example87.png" title="" float=left width = '1000px'>
-<br />
+</div>
+<div>
 竖屏效果：
-<br />
 <img src="https://github.com/wufuzeng/FZAVPlayer/blob/master/Screenshots/example88.png" title="" float=left width = '400px'>
-
-
-<p align="center" >
-<img src= ”图片路径" title="">
-</p>
+</div>
 
 
 # FZAVPlayer
