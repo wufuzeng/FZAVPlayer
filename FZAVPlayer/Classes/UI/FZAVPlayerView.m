@@ -10,7 +10,13 @@
 #import "FZAVPlayerView.h"
 
 #import "FZAVPlayerManager.h"
+#import "FZAVPlayerControlView.h"
+
 @interface FZAVPlayerView ()
+<
+FZPlayControlDelegate,
+FZPlayManagerDelegate
+>
 /** 播放管理 */
 @property (nonatomic,strong) FZAVPlayerManager *playerManager;
 /** 播放控制界面 */
@@ -169,13 +175,24 @@
     self.controlView.playerStatus = playerStatus;
     [self bringSubviewToFront:self.controlView];
     
+    static NSInteger __tryCount = 0;
+    
     switch (playerStatus) {
         case FZAVPlayerStatusPlaying:{
             [self play];
+            __tryCount = 0;
         } break;
         case FZAVPlayerStatusFinished:{
             if (self.autoReplay) {
                 [self play];
+            }
+        } break;
+        case FZAVPlayerStatusFailed:
+        case FZAVPlayerStatusUnKown:{
+            if (__tryCount < 3) {
+                /** 重新设置 */
+                [self playWithUrl:self.urlPath];
+                __tryCount++;
             }
         } break;
         default:

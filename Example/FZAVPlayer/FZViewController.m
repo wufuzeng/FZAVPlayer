@@ -8,7 +8,7 @@
 
 #import "FZViewController.h"
 
-#import <FZAVPlayer/FZAVPlayer.h>
+#import <FZAVPlayer.h>
 @interface FZViewController ()
     @property (nonatomic,strong) FZAVPlayerView *player;
     

@@ -34,6 +34,7 @@
 
 @property (nonatomic,assign,readonly) CGFloat titleBarHeight;
 @property (nonatomic,strong) NSLayoutConstraint *layoutTitleBarTop;
+@property (nonatomic,strong) NSLayoutConstraint *layoutTitleBarHeight;
 
 @end
 
@@ -349,7 +350,21 @@
             self.toolBar.layoutFullScreenRight.constant = 0;
         }
         
+        UIDevice *device = [UIDevice currentDevice];
+        if (device.orientation == UIDeviceOrientationPortrait ||
+            device.orientation == UIDeviceOrientationUnknown) {
+            if ([self isIPhoneXSeries]) {
+                self.layoutTitleBarHeight.constant = 44 + self.titleBarHeight;
+            }else{
+                self.layoutTitleBarHeight.constant = self.titleBarHeight;
+            }
+        }else{
+            self.layoutTitleBarHeight.constant = self.titleBarHeight;
+        }
+        
     } else if (_playerStyle == FZAVPlayerViewStyleNormal) {
+        self.layoutTitleBarHeight.constant = self.titleBarHeight;
+        
         self.toolBar.fullScreenButton.selected = YES;
         self.toolBar.layoutFullScreenRight.constant = 0;
         if (self.showTitleBar) {
@@ -387,6 +402,7 @@
     }
 }
  
+    
 
 #pragma mark -- Lazy Func -------
 
@@ -425,7 +441,7 @@
         NSLayoutConstraint* left = [NSLayoutConstraint constraintWithItem:_titleBar attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1 constant:0];
         NSLayoutConstraint* right = [NSLayoutConstraint constraintWithItem:_titleBar attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1 constant:0];
         NSLayoutConstraint* height = [NSLayoutConstraint constraintWithItem:_titleBar attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeHeight multiplier:1 constant:self.titleBarHeight];
-        
+        self.layoutTitleBarHeight = height;
         [self.contentView addConstraints:@[top,left,right,height]];
         
         [_titleBar.backButton addTarget:self action:@selector(backButtonAction:) forControlEvents:UIControlEventTouchUpInside];

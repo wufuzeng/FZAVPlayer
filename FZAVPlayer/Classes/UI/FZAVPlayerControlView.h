@@ -9,14 +9,10 @@
 #import <UIKit/UIKit.h>
 
 #import "FZAVPlayerManager.h"
-
+#import "FZAVPlayerView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger,FZAVPlayerViewStyle) {
-    FZAVPlayerViewStyleNormal = 0,//正常
-    FZAVPlayerViewStyleFullScreen,//全屏 
-};
 
 @class FZAVPlayerControlView;
 

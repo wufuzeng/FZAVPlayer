@@ -18,8 +18,15 @@
   "platforms": {
     "ios": "8.0"
   },
-  "public_header_files": "FZAVPlayer/Classes/**/*.h",
-  "source_files": "FZAVPlayer/Classes/**/*.{h,m}",
+  "public_header_files": [
+    "FZAVPlayer/Classes/FZAVPlayer.h",
+    "FZAVPlayer/Classes/Core/*.h",
+    "FZAVPlayer/Classes/UI/FZAVPlayerView.h"
+  ],
+  "source_files": [
+    "FZAVPlayer/Classes/FZAVPlayer.h",
+    "FZAVPlayer/Classes/**/*.{h,m}"
+  ],
   "resource_bundles": {
     "FZAVPlayer": [
       "FZAVPlayer/Assets/*.png"

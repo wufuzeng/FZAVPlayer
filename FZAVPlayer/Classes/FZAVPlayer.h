@@ -26,7 +26,7 @@
 #define FZAVPlayer_h
 
 #import "FZAVPlayerItem.h"
-#import "FZAVPlayer.h"
+#import "FZAVPlayerManager.h"
 
 #import "FZAVPlayerView.h"
 

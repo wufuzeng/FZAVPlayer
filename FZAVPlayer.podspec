@@ -29,8 +29,9 @@ Pod::Spec.new do |s|
     # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
     
     s.ios.deployment_target = '8.0'
-    s.public_header_files = 'FZAVPlayer/Classes/**/*.h'
-    s.source_files = 'FZAVPlayer/Classes/**/*.{h,m}'
+    s.public_header_files = ['FZAVPlayer/Classes/FZAVPlayer.h','FZAVPlayer/Classes/Core/*.h','FZAVPlayer/Classes/UI/FZAVPlayerView.h']
+    #s.private_header_files
+    s.source_files = ['FZAVPlayer/Classes/FZAVPlayer.h','FZAVPlayer/Classes/**/*.{h,m}']
     
     s.resource_bundles = {
         'FZAVPlayer' => ['FZAVPlayer/Assets/*.png']

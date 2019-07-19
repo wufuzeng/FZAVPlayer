@@ -6,7 +6,7 @@
 //  Copyright © 2019 吴福增. All rights reserved.
 //
 
-#import "FZAVPlayer.h"
+#import "FZAVPlayerManager.h"
 
 @interface FZAVPlayerManager ()
 /** 播放对象 (控制 开始，跳转，暂停，停止)*/
