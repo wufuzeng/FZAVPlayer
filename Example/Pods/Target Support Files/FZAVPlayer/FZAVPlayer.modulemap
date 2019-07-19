@@ -1,0 +1,6 @@
+framework module FZAVPlayer {
+  umbrella header "FZAVPlayer-umbrella.h"
+
+  export *
+  module * { export * }
+}
