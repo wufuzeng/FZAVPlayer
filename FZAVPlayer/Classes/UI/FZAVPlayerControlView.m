@@ -48,8 +48,8 @@
         self.userInteractionEnabled = YES;
         self.opaque                 = YES;
         self.backgroundColor        = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.3];
-        self.playerStatus  = VideoPlayerStatusPrepare;
-        self.playerStyle  = VideoPlayerStyleNormal;
+        self.playerStatus  = FZAVPlayerStatusPrepare;
+        self.playerStyle  = FZAVPlayerViewStyleNormal;
         [self timer];
         [self setupViews];
     }
@@ -178,13 +178,13 @@
 #pragma mark -- Action Func ----
 
 -(void)backButtonAction:(UIButton*)sender {
-    if (self.playerStyle == VideoPlayerStyleFullScreen) {
+    if (self.playerStyle == FZAVPlayerViewStyleFullScreen) {
         if (self.showTitleBar) {
             self.layoutTitleBarTop.constant = 0;
         }else{
             self.layoutTitleBarTop.constant = -self.titleBarHeight;
         }
-        self.playerStyle = VideoPlayerStyleNormal;
+        self.playerStyle = FZAVPlayerViewStyleNormal;
         if ([self.delegate respondsToSelector:@selector(control:playerStyleChanged:)]) {
             [self.delegate control:self playerStyleChanged:self.playerStyle];
         }
@@ -214,37 +214,38 @@
 }
 
 - (void)fullScreenButtonAction:(UIButton *)sender {
-    if (self.playerStyle == VideoPlayerStyleFullScreen) {
+    if (self.playerStyle == FZAVPlayerViewStyleFullScreen) {
         if (self.showTitleBar) {
             self.layoutTitleBarTop.constant = 0;
+            
         }else{
             self.layoutTitleBarTop.constant = -self.titleBarHeight;
         }
-        self.playerStyle = VideoPlayerStyleNormal;
+        self.playerStyle = FZAVPlayerViewStyleNormal;
     } else {
         self.layoutTitleBarTop.constant = 0;
-        self.playerStyle = VideoPlayerStyleFullScreen;
+        self.playerStyle = FZAVPlayerViewStyleFullScreen;
     }
 }
 
 -(void)playButtonAction:(UIButton *)sender {
-    if (self.playerStatus == VideoPlayerStatusPaused ||
-        self.playerStatus == VideoPlayerStatusPrepare ||
-        self.playerStatus == VideoPlayerStatusFinished) {
+    if (self.playerStatus == FZAVPlayerStatusPaused ||
+        self.playerStatus == FZAVPlayerStatusPrepare ||
+        self.playerStatus == FZAVPlayerStatusFinished) {
         
         [self cancelTimer];
         [self showControlViewWithfireTimer:NO];
         
-        self.playerStatus = VideoPlayerStatusPlaying;
-    } else if (self.playerStatus == VideoPlayerStatusPlaying) {
+        self.playerStatus = FZAVPlayerStatusPlaying;
+    } else if (self.playerStatus == FZAVPlayerStatusPlaying) {
         
         [self cancelTimer];
-        self.playerStatus = VideoPlayerStatusPaused;
+        self.playerStatus = FZAVPlayerStatusPaused;
     }
 }
 
 -(void)retryButtonAction:(UIButton *)sender {
-    self.playerStatus = VideoPlayerStatusPlaying;
+    self.playerStatus = FZAVPlayerStatusPlaying;
     if ([self.delegate respondsToSelector:@selector(control:playerStatusChanged:)]) {
         [self.delegate control:self playerStatusChanged:self.playerStatus ];
     }
@@ -289,7 +290,7 @@
     self.titleBar.titleLabel.text = title;
 }
 
--(void)setPlayerStatus:(VideoPlayerStatus)playerStatus {
+-(void)setPlayerStatus:(FZAVPlayerStatus)playerStatus {
     
     if (_playerStatus != playerStatus) {
         _playerStatus = playerStatus;
@@ -298,21 +299,21 @@
         }
     }
     
-    if (self.playerStatus == VideoPlayerStatusPlaying ||
-        self.playerStatus == VideoPlayerStatusStoped) {
+    if (self.playerStatus == FZAVPlayerStatusPlaying ||
+        self.playerStatus == FZAVPlayerStatusStoped) {
         
         //播放,重播 按钮
         self.playButton.selected = YES;
         self.playButton.alpha = 1;
         self.retryButton.alpha = 0;
-    } else if (self.playerStatus == VideoPlayerStatusPaused ||
-               self.playerStatus == VideoPlayerStatusSeeking) {
+    } else if (self.playerStatus == FZAVPlayerStatusPaused ||
+               self.playerStatus == FZAVPlayerStatusSeeking) {
         //播放,重播 按钮
         self.playButton.selected = NO;
         self.playButton.alpha = 1;
         self.retryButton.alpha = 0;
-    } else if (self.playerStatus == VideoPlayerStatusFinished ||
-               self.playerStatus == VideoPlayerStatusPrepare) {
+    } else if (self.playerStatus == FZAVPlayerStatusFinished ||
+               self.playerStatus == FZAVPlayerStatusPrepare) {
         
         //播放,重播 按钮
         self.playButton.selected = NO;
@@ -327,7 +328,7 @@
     }
 }
 
--(void)setPlayerStyle:(VideoPlayerStyle)playerStyle {
+-(void)setPlayerStyle:(FZAVPlayerViewStyle)playerStyle {
     
     if (_playerStyle != playerStyle) {
         _playerStyle = playerStyle;
@@ -335,7 +336,7 @@
             [self.delegate control:self playerStyleChanged:playerStyle ];
         }
     }
-    if (_playerStyle == VideoPlayerStyleFullScreen) {
+    if (_playerStyle == FZAVPlayerViewStyleFullScreen) {
         self.toolBar.fullScreenButton.selected = NO;
         self.titleBar.backButton.alpha = 1;
         self.layoutTitleBarTop.constant = 0;
@@ -348,7 +349,7 @@
             self.toolBar.layoutFullScreenRight.constant = 0;
         }
         
-    } else if (_playerStyle == VideoPlayerStyleNormal) {
+    } else if (_playerStyle == FZAVPlayerViewStyleNormal) {
         self.toolBar.fullScreenButton.selected = YES;
         self.toolBar.layoutFullScreenRight.constant = 0;
         if (self.showTitleBar) {
@@ -381,7 +382,7 @@
 
 - (void)setShowBackBtn:(BOOL)showBackBtn {
     _showBackBtn = showBackBtn;
-    if (!_showBackBtn && self.playerStyle == VideoPlayerStyleNormal) {
+    if (!_showBackBtn && self.playerStyle == FZAVPlayerViewStyleNormal) {
         self.titleBar.backButton.alpha = 0;
     }
 }

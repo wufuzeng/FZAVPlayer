@@ -12,15 +12,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger,VideoPlayerStatus) {
-    VideoPlayerStatusPrepare,         //准备播放
-    VideoPlayerStatusPlaying,         //正在播放
-    VideoPlayerStatusPaused,          //暂停
-    VideoPlayerStatusStoped,          //停止
-    VideoPlayerStatusFinished,        //完成
-    VideoPlayerStatusSeeking,         //正在定位
-    VideoPlayerStatusFailed,          //失败
-    VideoPlayerStatusUnKown,          //未知
+typedef NS_ENUM(NSInteger,FZAVPlayerStatus) {
+    FZAVPlayerStatusPrepare,         //准备播放
+    FZAVPlayerStatusPlaying,         //正在播放
+    FZAVPlayerStatusPaused,          //暂停
+    FZAVPlayerStatusStoped,          //停止
+    FZAVPlayerStatusFinished,        //完成
+    FZAVPlayerStatusSeeking,         //正在定位
+    FZAVPlayerStatusFailed,          //失败
+    FZAVPlayerStatusUnKown,          //未知
 };
 
 @class FZAVPlayerManager;
@@ -28,7 +28,7 @@ typedef NS_ENUM(NSInteger,VideoPlayerStatus) {
 @protocol FZPlayManagerDelegate <NSObject>
 
 /** 播放状态改变 */
-- (void)manager:(FZAVPlayerManager *)manager playerStatusChanged:(VideoPlayerStatus)playerStatus;
+- (void)manager:(FZAVPlayerManager *)manager playerStatusChanged:(FZAVPlayerStatus)playerStatus;
 /** 总时间改变 */
 - (void)manager:(FZAVPlayerManager *)manager playItem:(FZAVPlayerItem *)playItem totalIntervalChanged:(NSTimeInterval)totalInterval;
 /** 时间表更新(当前播放位置) */
@@ -47,11 +47,14 @@ typedef NS_ENUM(NSInteger,VideoPlayerStatus) {
 /** 设置播放源 */
 @property (nonatomic,strong) FZAVPlayerItem *item;
 /** 播放状态 */
-@property (nonatomic,assign) VideoPlayerStatus playerStatus;
+@property (nonatomic,assign) FZAVPlayerStatus playerStatus;
 /** 进度条正在被拖拽 */
 @property (nonatomic,assign) BOOL isSliding;
 /** 自动重新播放 */
 @property (nonatomic,assign) BOOL autoReplay;
+
+/** 单利 */
++ (FZAVPlayerManager *)sharedPlayer;
 
 /** 跳转进度播放
  @param timeinterval  位置

@@ -13,20 +13,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger,VideoPlayerStyle) {
-    VideoPlayerStyleNormal = 0,//正常
-    VideoPlayerStyleFullScreen,//全屏
-//    VideoPlayerStyleFullScreenLeft,//全屏
-//    VideoPlayerStyleFullScreenRight,//全屏
+typedef NS_ENUM(NSInteger,FZAVPlayerViewStyle) {
+    FZAVPlayerViewStyleNormal = 0,//正常
+    FZAVPlayerViewStyleFullScreen,//全屏 
 };
 
 @class FZAVPlayerControlView;
 
 @protocol FZPlayControlDelegate <NSObject>
 /** 播放状态改变 */
-- (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(VideoPlayerStatus)playerStatus ;
+- (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(FZAVPlayerStatus)playerStatus ;
 /** 视图状态改变*/
-- (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(VideoPlayerStyle)playerStyle ;
+- (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(FZAVPlayerViewStyle)playerStyle ;
 @optional
 /** 缓存改变 */
 - (void)control:(FZAVPlayerControlView *)control bufferChanged:(NSTimeInterval)timeInterval;
@@ -55,8 +53,8 @@ typedef NS_ENUM(NSInteger,VideoPlayerStyle) {
 /** 禁止调节亮度,音量 */
 @property (nonatomic,assign) BOOL disableAdjustBrightnessOrVolume;
 
-@property (nonatomic,assign) VideoPlayerStatus playerStatus;
-@property (nonatomic,assign) VideoPlayerStyle  playerStyle;
+@property (nonatomic,assign) FZAVPlayerStatus playerStatus;
+@property (nonatomic,assign) FZAVPlayerViewStyle  playerStyle;
 
 
 

@@ -105,17 +105,6 @@
 
 
 
-/**
- 显示消息
  
- @param string 要显示的消息
- */
-+ (void) showDebugMessage:(NSString *)string{
-#ifdef DEBUG
-    NSLog(@"%@",string);
-#endif
-}
-
-
 
 @end

@@ -23,8 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** 播放路径 */
 -(instancetype)initWithURL:(NSURL *)url;
 
-
-
 #pragma mark - 工具方法 ----
 /**
  获取缓存时间
@@ -32,11 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return 已经缓冲的总时间
  */
 + (NSTimeInterval)availableDuration:(AVPlayer *)player;
-/**
- 显示消息
- @param string 要显示的消息
- */
-+ (void) showDebugMessage:(NSString *)string;
+ 
 
 @end
 

@@ -6,7 +6,7 @@
 //  Copyright © 2019 吴福增. All rights reserved.
 //
 
-#import "FZAVPlayerManager.h"
+#import "FZAVPlayer.h"
 
 @interface FZAVPlayerManager ()
 /** 播放对象 (控制 开始，跳转，暂停，停止)*/
@@ -23,6 +23,19 @@
 @end
 
 @implementation FZAVPlayerManager
+    
+    
+/** 单利 */
++ (FZAVPlayerManager *)sharedPlayer{
+    static FZAVPlayerManager *sharedPlayer = nil;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        sharedPlayer = [[self alloc] init];
+    });
+    
+    return sharedPlayer;
+}
+
 /**
  初始化播放器
  
@@ -39,7 +52,7 @@
                  withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker
                        error:nil];
         
-        __weak typeof(FZAVPlayerManager *)weakSelf = self;
+        __weak __typeof(self) weakSelf = self;
         //对于1分钟以内的视频就每1/30秒刷新一次页面，大于1分钟的每秒一次就行 (总时间，时间刻度)：每段=总时间/时间刻度
         CMTime interval = self.duration > 60 ? CMTimeMake(1, 1) : CMTimeMake(1, 30);
         //这个方法就是每隔多久调用一次block，函数返回的id类型的对象在不使用时用-removeTimeObserver:释放，官方api是这样说的
@@ -48,7 +61,7 @@
                                                           usingBlock:^(CMTime time) {
                                                               
           if (CMTimeGetSeconds(time) >= weakSelf.totalSecond) {
-              weakSelf.playerStatus = VideoPlayerStatusFinished;
+              weakSelf.playerStatus = FZAVPlayerStatusFinished;
               if ([weakSelf.delegate respondsToSelector:@selector(manager:playerStatusChanged:)]) {
                   [weakSelf.delegate manager:weakSelf playerStatusChanged:weakSelf.playerStatus];
               }
@@ -67,7 +80,7 @@
  @param timeinterval  位置
  */
 - (void) playWithTimeInterval:(NSTimeInterval)timeinterval {
-    self.playerStatus = VideoPlayerStatusPaused;
+    self.playerStatus = FZAVPlayerStatusPaused;
     
     CMTime startTime = CMTimeMakeWithSeconds(timeinterval, _fps);
     
@@ -75,13 +88,13 @@
         [self.delegate manager:self  playItem:self.item progressIntervalChanged:timeinterval];
     }
     
-    __weak typeof(FZAVPlayerManager *)weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     
     /** 跳转进度 */
     [self.player seekToTime:startTime completionHandler:^(BOOL finished) {
         
         if (!weakSelf.isSliding) {
-            weakSelf.playerStatus = VideoPlayerStatusPlaying;
+            weakSelf.playerStatus = FZAVPlayerStatusPlaying;
             if ([weakSelf.delegate respondsToSelector:@selector(manager:playerStatusChanged:)]) {
                 [weakSelf.delegate manager:weakSelf playerStatusChanged:weakSelf.playerStatus];
             }
@@ -95,26 +108,26 @@
  
  @param playerStatus 播放状态
  */
--(void)setPlayerStatus:(VideoPlayerStatus)playerStatus {
+-(void)setPlayerStatus:(FZAVPlayerStatus)playerStatus {
     
     switch (playerStatus) {
-        case VideoPlayerStatusPlaying:{
+        case FZAVPlayerStatusPlaying:{
             [self.player play];
             break;}
-        case VideoPlayerStatusPaused:
-        case VideoPlayerStatusSeeking:{
+        case FZAVPlayerStatusPaused:
+        case FZAVPlayerStatusSeeking:{
             [self.player pause];
             break;}
-        case VideoPlayerStatusFinished:{
+        case FZAVPlayerStatusFinished:{
             [self.player seekToTime:kCMTimeZero];
             if (!self.autoReplay) {
                 [self.player pause];
             }
             break;}
-        case VideoPlayerStatusPrepare:{
+        case FZAVPlayerStatusPrepare:{
             [self.player seekToTime:kCMTimeZero];
             break;}
-        case VideoPlayerStatusStoped:{
+        case FZAVPlayerStatusStoped:{
             //暂停
             [self.player pause];
             //移除观察者
@@ -144,7 +157,7 @@
 - (void)setItem:(FZAVPlayerItem *)item {
     _item = item;
     
-    __weak typeof(FZAVPlayerManager *)weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     _item.itemStatusChangedBlock = ^(id objc) {
         AVPlayerItem *playerItem = (AVPlayerItem *)objc;
         
@@ -157,18 +170,15 @@
                     [weakSelf.delegate manager:weakSelf playItem:weakSelf.item totalIntervalChanged:weakSelf.totalSecond];
                 }
                 //设置播放状态
-                weakSelf.playerStatus = VideoPlayerStatusPlaying;
-                [FZAVPlayerItem showDebugMessage:@"开始播放!!!"];
+                weakSelf.playerStatus = FZAVPlayerStatusPlaying;
             break;}
             case AVPlayerStatusFailed:{
                 //设置播放状态
-                weakSelf.playerStatus = VideoPlayerStatusFailed;
-                [FZAVPlayerItem showDebugMessage:@"播放失败"];
+                weakSelf.playerStatus = FZAVPlayerStatusFailed;
                 break;}
             case AVPlayerStatusUnknown:{
                 //设置播放状态
-                weakSelf.playerStatus = VideoPlayerStatusUnKown;
-                [FZAVPlayerItem showDebugMessage:@"播放状态未知"];
+                weakSelf.playerStatus = FZAVPlayerStatusUnKown;
                 break;}
             default:
                 break;
@@ -204,16 +214,14 @@
     //放置播放源 （如果要切换视频需要调AVPlayer的replaceCurrentItemWithPlayerItem:方法）
     [self.player replaceCurrentItemWithPlayerItem:_item.playerItem];
     
-    self.playerStatus = VideoPlayerStatusPlaying;
+    self.playerStatus = FZAVPlayerStatusPlaying;
 }
 
 
 #pragma mark -- 其他状态 -------
 /** 刷新时间表 */
 - (void) scheduleRefreshControl{
-    
     double currentSecond = CMTimeGetSeconds(_item.playerItem.currentTime);
-    
     if ([[NSString stringWithFormat:@"%0.0f",currentSecond] integerValue] <= _totalSecond) {
         if ([self.delegate respondsToSelector:@selector(manager:playItem:progressIntervalChanged:)]) {
             [self.delegate manager:self  playItem:self.item progressIntervalChanged:currentSecond];

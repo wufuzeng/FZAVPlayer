@@ -12,7 +12,7 @@
 #import "FZAVPlayerManager.h"
 @interface FZAVPlayerView ()
 /** 播放管理 */
-@property (nonatomic,strong) FZAVPlayerManager *videoManager;
+@property (nonatomic,strong) FZAVPlayerManager *playerManager;
 /** 播放控制界面 */
 @property (nonatomic,strong) FZAVPlayerControlView *controlView;
 
@@ -65,13 +65,14 @@
 -(void)removeObserver{
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
+    
 - (void) handleDeviceOrientationDidChange:(NSNotification *)notifi {
     UIDevice *device = [UIDevice currentDevice];
     
     if (device.orientation == UIDeviceOrientationPortrait ||
         device.orientation == UIDeviceOrientationPortraitUpsideDown) {
         //竖屏
-        self.controlView.playerStyle = VideoPlayerStyleNormal;
+        self.controlView.playerStyle = FZAVPlayerViewStyleNormal;
         [self rotateView:device.orientation];
         
     } else if (device.orientation == UIDeviceOrientationLandscapeLeft ||
@@ -79,7 +80,7 @@
         if (self.disableFullScreen) {
             
         }else{
-            self.controlView.playerStyle = VideoPlayerStyleFullScreen;
+            self.controlView.playerStyle = FZAVPlayerViewStyleFullScreen;
             [self rotateView:device.orientation];
         }
     } else{
@@ -93,32 +94,32 @@
 
 -(void)playWithUrl:(NSURL *)url {
     _urlPath = url;
-    self.videoManager.item = [[FZAVPlayerItem alloc] initWithURL:url];
+    self.playerManager.item = [[FZAVPlayerItem alloc] initWithURL:url];
 }
 
 
 -(void)play{
-    self.controlView.playerStatus  = VideoPlayerStatusPlaying;
-    self.videoManager.playerStatus = VideoPlayerStatusPlaying;
+    self.controlView.playerStatus  = FZAVPlayerStatusPlaying;
+    self.playerManager.playerStatus = FZAVPlayerStatusPlaying;
 }
 
 
 -(void)pause{
-    self.controlView.playerStatus  = VideoPlayerStatusPaused;
-    self.videoManager.playerStatus = VideoPlayerStatusPaused;
+    self.controlView.playerStatus  = FZAVPlayerStatusPaused;
+    self.playerManager.playerStatus = FZAVPlayerStatusPaused;
 }
 
 - (void)stop{
-    self.controlView.playerStatus  = VideoPlayerStatusStoped;
-    self.videoManager.playerStatus = VideoPlayerStatusStoped;
+    self.controlView.playerStatus  = FZAVPlayerStatusStoped;
+    self.playerManager.playerStatus = FZAVPlayerStatusStoped;
 }
 
 
 #pragma mark -- FZPlayControlDelegate ---------
 /** 播放状态改变 */
-- (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(VideoPlayerStatus)playerStatus{
+- (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(FZAVPlayerStatus)playerStatus{
     
-    self.videoManager.playerStatus = playerStatus;
+    self.playerManager.playerStatus = playerStatus;
     [self bringSubviewToFront:self.controlView];
     
     if ([self.delegate respondsToSelector:@selector(player:playerStatusChanged:)]) {
@@ -126,11 +127,11 @@
     }
 }
 
-- (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(VideoPlayerStyle)playerStyle{
-    if (playerStyle == VideoPlayerStyleFullScreen) {
-        [self zoomView:VideoPlayerStyleFullScreen];
+- (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(FZAVPlayerViewStyle)playerStyle{
+    if (playerStyle == FZAVPlayerViewStyleFullScreen) {
+        [self zoomView:FZAVPlayerViewStyleFullScreen];
     } else {
-        [self zoomView:VideoPlayerStyleNormal];
+        [self zoomView:FZAVPlayerViewStyleNormal];
         
     }
     
@@ -141,14 +142,14 @@
 }
 
 - (void)control:(FZAVPlayerControlView *)control progressChanged:(NSTimeInterval)timeInterval{
-    [self.videoManager playWithTimeInterval:timeInterval];
+    [self.playerManager playWithTimeInterval:timeInterval];
 }
 
 - (void)control:(FZAVPlayerControlView *)control sliderChanged:(BOOL)isSliding{
     if (isSliding) {
-        self.videoManager.playerStatus = VideoPlayerStatusPaused;
+        self.playerManager.playerStatus = FZAVPlayerStatusPaused;
     }
-    self.videoManager.isSliding = isSliding;
+    self.playerManager.isSliding = isSliding;
 }
 
 - (void)control:(FZAVPlayerControlView *)control didClickedWithBackButton:(UIButton *)button{
@@ -160,7 +161,7 @@
 
 #pragma mark - FZPlayManagerDelegate ---
 /** 播放状态改变 */
-- (void)manager:(FZAVPlayerManager *)manager playerStatusChanged:(VideoPlayerStatus)playerStatus{
+- (void)manager:(FZAVPlayerManager *)manager playerStatusChanged:(FZAVPlayerStatus)playerStatus{
     
     if (self.controlView.playerStatus == playerStatus) {
         return;
@@ -169,10 +170,10 @@
     [self bringSubviewToFront:self.controlView];
     
     switch (playerStatus) {
-        case VideoPlayerStatusPlaying:{
+        case FZAVPlayerStatusPlaying:{
             [self play];
         } break;
-        case VideoPlayerStatusFinished:{
+        case FZAVPlayerStatusFinished:{
             if (self.autoReplay) {
                 [self play];
             }
@@ -200,10 +201,10 @@
 }
 
 
--(void)zoomView:(VideoPlayerStyle)style {
+-(void)zoomView:(FZAVPlayerViewStyle)style {
     UIWindow *window = [[UIApplication sharedApplication] keyWindow];
     
-    if (style == VideoPlayerStyleNormal) {
+    if (style == FZAVPlayerViewStyleNormal) {
         [UIView animateWithDuration:0.3 animations:^{
             self.transform = CGAffineTransformIdentity;
             [self switchFrame:self.originRect];
@@ -246,13 +247,13 @@
             }else{
                 self.transform = CGAffineTransformMakeRotation(180/180.0 * M_PI);
             }
-            if (self.controlView.playerStyle == VideoPlayerStyleNormal) {
+            if (self.controlView.playerStyle == FZAVPlayerViewStyleNormal) {
                 [self switchFrame:self.originRect];
             }else{
                 [self switchFrame:fullRect];
             }
         } completion:^(BOOL finished) {
-            if (self.controlView.playerStyle == VideoPlayerStyleNormal) {
+            if (self.controlView.playerStyle == FZAVPlayerViewStyleNormal) {
                 [window setWindowLevel:UIWindowLevelNormal];
                 [self.showInView addSubview:self];
                 [self.showInView bringSubviewToFront:self];
@@ -291,7 +292,7 @@
 -(void)switchFrame:(CGRect)frame{
     [super setFrame:frame];
     CGRect nRect = CGRectMake(0, 0, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds));
-    self.videoManager.playerLayer.frame = nRect;
+    self.playerManager.playerLayer.frame = nRect;
     self.controlView.frame = nRect;
     [self.controlView layoutIfNeeded];
 }
@@ -331,12 +332,12 @@
 }
 -(void)setVideoGravity:(AVLayerVideoGravity)videoGravity {
     _videoGravity = videoGravity;
-    self.videoManager.playerLayer.videoGravity = _videoGravity;
+    self.playerManager.playerLayer.videoGravity = _videoGravity;
 }
 
 -(void)setAutoReplay:(BOOL)autoReplay {
     _autoReplay = autoReplay;
-    self.videoManager.autoReplay = autoReplay;
+    self.playerManager.autoReplay = autoReplay;
     self.controlView.autoReplay = autoReplay;
 }
 
@@ -357,13 +358,13 @@
     return _controlView;
 }
 
--(FZAVPlayerManager *)videoManager {
-    if (_videoManager == nil) {
-        _videoManager = [[FZAVPlayerManager alloc] init];
-        _videoManager.delegate = self;
-        [self.layer addSublayer:_videoManager.playerLayer];
+-(FZAVPlayerManager *)playerManager {
+    if (_playerManager == nil) {
+        _playerManager = [FZAVPlayerManager sharedPlayer];
+        _playerManager.delegate = self;
+        [self.layer addSublayer:_playerManager.playerLayer];
     }
-    return _videoManager;
+    return _playerManager;
 }
 
 

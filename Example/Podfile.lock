@@ -1,5 +1,5 @@
 PODS:
-  - FZAVPlayer (0.0.18)
+  - FZAVPlayer (0.0.1)
 
 DEPENDENCIES:
   - FZAVPlayer (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  FZAVPlayer: 5207f2ad55c7841f4fcb2b5318b9722a980131f4
+  FZAVPlayer: 7fdad76547f28947f7a78285f66b2a9e1b1f5e5e
 
 PODFILE CHECKSUM: f5e5021d094b53b7e19c7e786870b61f59cf06d9
 
