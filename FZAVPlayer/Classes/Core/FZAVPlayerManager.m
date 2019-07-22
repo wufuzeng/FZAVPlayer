@@ -6,93 +6,106 @@
 //  Copyright © 2019 吴福增. All rights reserved.
 //
 
+/*
+ * 在AVPlayer中时间的表示有一个专门的结构体CMTime
+ * typedef struct{
+ *     CMTimeValue value;     // 帧数
+ *     CMTimeScale timescale; // 帧率(影片每秒有几帧)
+ *     CMTimeFlags flags;
+ *     CMTimeEpoch epoch;
+ * } CMTime;
+ * CMTime是以分数的形式表示时间,value表示分子,timescale表示分母,flags是位掩码,表示时间的指定状态。
+ */
+
+
 #import "FZAVPlayerManager.h"
 
 @interface FZAVPlayerManager ()
+<
+FZAVPlayerItemDelegate
+>
 /** 播放对象 (控制 开始，跳转，暂停，停止)*/
 @property (nonatomic,strong) AVPlayer *player;
-/** 总秒数 */
-@property (nonatomic,assign) NSTimeInterval totalSecond;
-/** 视频持续时间 */
-@property (nonatomic,assign) CGFloat duration;
-/** 帧率 */
-@property (nonatomic,assign) CGFloat fps;
+///** 总秒数 */
+//@property (nonatomic,assign) NSTimeInterval totalSecond;
+///** 视频持续时间 */
+//@property (nonatomic,assign) CGFloat duration;
+///** 帧率 */
+//@property (nonatomic,assign) CGFloat fps;
 /** 播放对象定期观察者 */
-@property (nonatomic,strong) id playerObserve;
+@property (nonatomic,strong) id playerObserver;
 
 @end
 
 @implementation FZAVPlayerManager
-    
-    
+
+#pragma mark -- Life Cycle Func --
 /** 单利 */
 + (FZAVPlayerManager *)sharedPlayer{
     static FZAVPlayerManager *sharedPlayer = nil;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         sharedPlayer = [[self alloc] init];
+        //AVAudioSession是音频会话的一个单例，将指定该APP在与系统之间的通信中如何使用音频。不加没有声音。
+        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
+                                         withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker
+                                               error:nil];
     });
-    
     return sharedPlayer;
 }
 
-/**
- 初始化播放器
- 
- @return 返回实例化的播放器
- */
--(instancetype)init{
-    if (self = [super init]) {
-        
-        _player = [AVPlayer new];
-        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
-        
-        //AVAudioSession是音频会话的一个单例，将指定该APP在与系统之间的通信中如何使用音频。不加没有声音
-        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
-                 withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker
-                       error:nil];
-        
-        __weak __typeof(self) weakSelf = self;
-        //对于1分钟以内的视频就每1/30秒刷新一次页面，大于1分钟的每秒一次就行 (总时间，时间刻度)：每段=总时间/时间刻度
-        CMTime interval = self.duration > 60 ? CMTimeMake(1, 1) : CMTimeMake(1, 30);
-        //这个方法就是每隔多久调用一次block，函数返回的id类型的对象在不使用时用-removeTimeObserver:释放，官方api是这样说的
-        _playerObserve = [_player addPeriodicTimeObserverForInterval:interval
-                                                               queue:dispatch_get_main_queue()
-                                                          usingBlock:^(CMTime time) {
-                                                              
-          if (CMTimeGetSeconds(time) >= weakSelf.totalSecond) {
-              weakSelf.playerStatus = FZAVPlayerStatusFinished;
-              if ([weakSelf.delegate respondsToSelector:@selector(manager:playerStatusChanged:)]) {
-                  [weakSelf.delegate manager:weakSelf playerStatusChanged:weakSelf.playerStatus];
-              }
-          } else {
-              [weakSelf scheduleRefreshControl];
-          }
-      }];
-    }
-    return self;
+-(void)dealloc{
+    [self removeObserver];
 }
 
+#pragma mark –- Observer Func  --
 
-/**
- 跳转进度播放
- 
- @param timeinterval  位置
- */
-- (void) playWithTimeInterval:(NSTimeInterval)timeinterval {
-    self.playerStatus = FZAVPlayerStatusPaused;
-    
-    CMTime startTime = CMTimeMakeWithSeconds(timeinterval, _fps);
-    
-    if ([self.delegate respondsToSelector:@selector(manager:playItem:progressIntervalChanged:)]) {
-        [self.delegate manager:self  playItem:self.item progressIntervalChanged:timeinterval];
+-(void)addObserver{
+    if (self.playerObserver) {
+        [self removeObserver];
     }
-    
+    /*
+     * “添加周期时间观察者” ,
+     * 参数1 interal 为CMTime 类型的,
+     * 参数2 queue为串行队列,如果传入NULL就是默认主线程,
+     * 参数3 为CMTime 的block类型。
+     *
+     * 简而言之就是,每隔一段时间后执行 block。
+     * 比如:我们把interval设置成CMTimeMake(1, 10),在block里面刷新label,就是一秒钟刷新10次。
+     * 这个方法就是每隔多久调用一次block，函数返回的id类型的对象在不使用时用-removeTimeObserver:释放
+     */
     __weak __typeof(self) weakSelf = self;
-    
-    /** 跳转进度 */
+    //对于1分钟以内的视频就每1/30秒刷新一次页面，
+    //大于1分钟的每秒一次就行 (总时间，时间刻度)：每段=总时间/时间刻度
+    NSTimeInterval duration = [FZAVPlayerItemHandler playableDuration:self.itemHandler.playerItem];
+    CMTime interval = duration > 60 ? CMTimeMake(1, 1) : CMTimeMake(1, 30);
+    self.playerObserver = [self.player addPeriodicTimeObserverForInterval:interval
+                                                           queue:dispatch_get_main_queue()
+                                                      usingBlock:^(CMTime time) {
+          NSTimeInterval currentTimeInterval = CMTimeGetSeconds(time);
+          if ([weakSelf.delegate respondsToSelector:@selector(manager:playItem:progressIntervalChanged:)]) {
+              [weakSelf.delegate manager:weakSelf  playItem:weakSelf.itemHandler progressIntervalChanged:currentTimeInterval];
+          }
+      }];
+}
+
+-(void)removeObserver{
+    [self.player removeTimeObserver:self.playerObserver];
+    self.playerObserver = nil;
+}
+
+#pragma mark –- Custom Func --
+
+/** 指定进度播放 */
+- (void)playFromTimeInterval:(NSTimeInterval)timeinterval {
+    self.playerStatus = FZAVPlayerStatusSeeking;
+    CGFloat fps = [FZAVPlayerItemHandler framesPerSecond:self.player.currentItem];
+    CMTime startTime = CMTimeMakeWithSeconds(timeinterval, fps);
+    if ([self.delegate respondsToSelector:@selector(manager:playItem:progressIntervalChanged:)]) {
+        [self.delegate manager:self  playItem:self.itemHandler progressIntervalChanged:timeinterval];
+    }
+    __weak __typeof(self) weakSelf = self;
     [self.player seekToTime:startTime completionHandler:^(BOOL finished) {
-        
         if (!weakSelf.isSliding) {
             weakSelf.playerStatus = FZAVPlayerStatusPlaying;
             if ([weakSelf.delegate respondsToSelector:@selector(manager:playerStatusChanged:)]) {
@@ -102,133 +115,113 @@
     }];
 }
 
-#pragma mark - 设置方法
-/**
- 设置播放状态
- 
- @param playerStatus 播放状态
- */
+#pragma mark -- FZAVPlayerItemDelegate --
+/** 状态回调 */
+-(void)item:(FZAVPlayerItemHandler *)item statusChanged:(FZAVPlayerStatus)status{
+    switch (status) {
+        case FZAVPlayerStatusPrepare:
+        {
+            // 获取总时间
+            NSTimeInterval duration = [FZAVPlayerItemHandler playableDuration:self.player.currentItem];
+            if ([self.delegate respondsToSelector:@selector(manager:playItem:totalIntervalChanged:)]) {
+                [self.delegate manager:self playItem:item totalIntervalChanged:duration];
+            }
+            //设置播放状态
+            self.playerStatus = FZAVPlayerStatusPlaying;
+        }break;
+        default:
+        {
+            self.playerStatus = status;
+        }break;
+    }
+}
+/** 缓存回调 */
+-(void)item:(FZAVPlayerItemHandler *)item bufferUpdated:(NSTimeInterval)timeInteval{
+    if ([self.delegate respondsToSelector:@selector(manager:playItem:bufferIntervalChanged:)]) {
+        [self.delegate manager:self playItem:item bufferIntervalChanged:timeInteval];
+    }
+}
+
+#pragma mark -- Set,Get Func ---
+
+/** 设置播放项目 */
+- (void)setItemHandler:(FZAVPlayerItemHandler *)itemHandler {
+    _itemHandler = itemHandler;
+    itemHandler.delegate = self;
+    //放置播放源
+    [self.player replaceCurrentItemWithPlayerItem:itemHandler.playerItem];
+    [self addObserver];
+}
+
+/** 设置播放状态 */
 -(void)setPlayerStatus:(FZAVPlayerStatus)playerStatus {
-    
     switch (playerStatus) {
-        case FZAVPlayerStatusPlaying:{
+        case FZAVPlayerStatusPrepare:
+        {
+            [self.player seekToTime:kCMTimeZero];
+        }break;
+        case FZAVPlayerStatusPlaying:
+        {
             [self.player play];
-            break;}
+        }break;
         case FZAVPlayerStatusPaused:
-        case FZAVPlayerStatusSeeking:{
+        case FZAVPlayerStatusSeeking:
+        {
             [self.player pause];
-            break;}
-        case FZAVPlayerStatusFinished:{
+        }break;
+        case FZAVPlayerStatusStoped:
+        {
+            //暂停
+            [self.player pause];
+            //取消跳转
+            [self.player.currentItem cancelPendingSeeks];
+            //取消加载
+            [self.player.currentItem.asset cancelLoading];
+            //移除
+            [self.itemHandler removeItem];
+        } break;
+        case FZAVPlayerStatusFinished:
+        {
             [self.player seekToTime:kCMTimeZero];
             if (!self.autoReplay) {
                 [self.player pause];
             }
-            break;}
-        case FZAVPlayerStatusPrepare:{
-            [self.player seekToTime:kCMTimeZero];
-            break;}
-        case FZAVPlayerStatusStoped:{
-            //暂停
-            [self.player pause];
-            //移除观察者
-            [_item.playerItem cancelPendingSeeks];
-            [_item.playerItem.asset cancelLoading];
-            _item = nil;
-            break;}
+        }break;
+        case FZAVPlayerStatusLoading:{
             
-        default:
-            break;
+        }break;
+        case FZAVPlayerStatusFailed:{
+            
+        }break;
+        default:{
+         
+        }break;
     }
     
-    if (_playerStatus != playerStatus) {
-        _playerStatus = playerStatus;
-        if ([self.delegate respondsToSelector:@selector(manager:playerStatusChanged:)]) {
-            [self.delegate manager:self playerStatusChanged:self.playerStatus ];
-        }
-    }
-}
-
-
-/**
- 设置播放项目
- 
- @param item item
- */
-- (void)setItem:(FZAVPlayerItem *)item {
-    _item = item;
-    
-    __weak __typeof(self) weakSelf = self;
-    _item.itemStatusChangedBlock = ^(id objc) {
-        AVPlayerItem *playerItem = (AVPlayerItem *)objc;
-        
-        switch (playerItem.status) {
-            case AVPlayerStatusReadyToPlay:{
-                // 转换成秒
-                weakSelf.totalSecond = playerItem.duration.timescale ? playerItem.duration.value / playerItem.duration.timescale : 0;
-                // 获取总时间，并回调
-                if ([weakSelf.delegate respondsToSelector:@selector(manager:playItem:totalIntervalChanged:)]) {
-                    [weakSelf.delegate manager:weakSelf playItem:weakSelf.item totalIntervalChanged:weakSelf.totalSecond];
-                }
-                //设置播放状态
-                weakSelf.playerStatus = FZAVPlayerStatusPlaying;
-            break;}
-            case AVPlayerStatusFailed:{
-                //设置播放状态
-                weakSelf.playerStatus = FZAVPlayerStatusFailed;
-                break;}
-            case AVPlayerStatusUnknown:{
-                //设置播放状态
-                weakSelf.playerStatus = FZAVPlayerStatusUnKown;
-                break;}
-            default:
-                break;
-        }
-        
-        //获取播放参数
-        weakSelf.duration = CMTimeGetSeconds(weakSelf.item.playerItem.asset.duration);
-        NSArray *videoArray = [weakSelf.item.playerItem.asset tracksWithMediaType:AVMediaTypeVideo];
-        if (videoArray.count > 0) { 
-            weakSelf.fps = [[videoArray objectAtIndex:0] nominalFrameRate];
-        }
-    };
-    
-    _item.itemBufferUpdateBlock = ^(id objc) {
-        
-        AVPlayerItem *playerItem = (AVPlayerItem *)objc;
-        
-        NSArray *array = playerItem.loadedTimeRanges;
-        CMTimeRange timeRange = [array.firstObject CMTimeRangeValue];//本次缓冲时间范围
-        
-        float startSeconds = CMTimeGetSeconds(timeRange.start);
-        float durationSeconds = CMTimeGetSeconds(timeRange.duration);
-        
-        NSTimeInterval totalBuffer = startSeconds + durationSeconds;//缓冲总长度
-        
-        NSLog(@"当前缓冲时间：%f",totalBuffer);
-        
-        if ([weakSelf.delegate respondsToSelector:@selector(manager:playItem:bufferIntervalChanged:)]) {
-            [weakSelf.delegate manager:weakSelf playItem:weakSelf.item bufferIntervalChanged:totalBuffer];
-        }
-    };
-    
-    //放置播放源 （如果要切换视频需要调AVPlayer的replaceCurrentItemWithPlayerItem:方法）
-    [self.player replaceCurrentItemWithPlayerItem:_item.playerItem];
-    
-    self.playerStatus = FZAVPlayerStatusPlaying;
-}
-
-
-#pragma mark -- 其他状态 -------
-/** 刷新时间表 */
-- (void) scheduleRefreshControl{
-    double currentSecond = CMTimeGetSeconds(_item.playerItem.currentTime);
-    if ([[NSString stringWithFormat:@"%0.0f",currentSecond] integerValue] <= _totalSecond) {
-        if ([self.delegate respondsToSelector:@selector(manager:playItem:progressIntervalChanged:)]) {
-            [self.delegate manager:self  playItem:self.item progressIntervalChanged:currentSecond];
-        }
+    if (_playerStatus == playerStatus) return;
+    _playerStatus = playerStatus;
+    if ([self.delegate respondsToSelector:@selector(manager:playerStatusChanged:)]) {
+        [self.delegate manager:self playerStatusChanged:self.playerStatus ];
     }
 }
 
 
+
+
+#pragma mark -- Lazy Func --
+
+-(AVPlayer *)player{
+    if (_player == nil) {
+        _player = [AVPlayer new];
+    }
+    return _player;
+}
+
+-(AVPlayerLayer *)playerLayer{
+    if (_playerLayer == nil) {
+        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+    }
+    return _playerLayer;
+}
 
 @end

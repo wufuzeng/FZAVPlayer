@@ -20,12 +20,15 @@
  AVPlayerItem：管理资源对象，提供播放数据源
  AVPlayerLayer：负责显示视频，如果没有添加该类，只有声音没有画面
  
+ AVPlayer 可以播放格式:
+ 支持视频格式: WMV,AVI,MKV,RMVB,RM,XVID,MP4,3GP,MPG等。
+ 支持音频格式:MP3,WMA,RM,ACC,OGG,APE,FLAC,FLV等。
  */
 
 #ifndef FZAVPlayer_h
 #define FZAVPlayer_h
 
-#import "FZAVPlayerItem.h"
+#import "FZAVPlayerItemHandler.h"
 #import "FZAVPlayerManager.h"
 
 #import "FZAVPlayerView.h"

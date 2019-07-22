@@ -17,15 +17,18 @@
 FZPlayControlDelegate,
 FZPlayManagerDelegate
 >
+/** 播放源持有者 */
+@property (nonatomic,strong) FZAVPlayerItemHandler *itemHandler;
 /** 播放管理 */
 @property (nonatomic,strong) FZAVPlayerManager *playerManager;
 /** 播放控制界面 */
 @property (nonatomic,strong) FZAVPlayerControlView *controlView;
-
 /** 原始的rect */
 @property (nonatomic,assign) CGRect originRect;
 /** 视频链接 */
-@property (nonatomic,copy)   NSURL *urlPath;
+@property (nonatomic,strong) NSURL *urlPath;
+/** 重试次数 */
+@property (nonatomic,assign) NSInteger retryCount;
 
 @end
 
@@ -42,20 +45,40 @@ FZPlayManagerDelegate
 }
 
 -(void)dealloc{
-    
     NSLog(@"%@释放了",NSStringFromClass([self class]));
     [self removeObserver];
 }
 
 #pragma mark -- SetupViews Func -----
-/** 配置视图 */
+/** 配置 */
 -(void)setupView{
+    self.retryCount = 0;
     self.backgroundColor = [UIColor blackColor];
     self.layer.masksToBounds = YES;
-    self.originRect = self.frame;
-    [self controlView];
 }
 
+#pragma mark -- Play Func -------------
+
+-(void)playWithUrl:(NSURL *)url {
+    self.urlPath = url;
+    [self.itemHandler replaceItemWihtURL:url];
+    self.playerManager.itemHandler = self.itemHandler;
+}
+
+-(void)resume{
+    self.controlView.playerStatus  = FZAVPlayerStatusPlaying;
+    self.playerManager.playerStatus = FZAVPlayerStatusPlaying;
+}
+
+-(void)pause{
+    self.controlView.playerStatus  = FZAVPlayerStatusPaused;
+    self.playerManager.playerStatus = FZAVPlayerStatusPaused;
+}
+
+- (void)stop{
+    self.controlView.playerStatus  = FZAVPlayerStatusStoped;
+    self.playerManager.playerStatus = FZAVPlayerStatusStoped;
+}
 
 #pragma mark -- Notice Func -------
 
@@ -75,181 +98,27 @@ FZPlayManagerDelegate
 - (void) handleDeviceOrientationDidChange:(NSNotification *)notifi {
     UIDevice *device = [UIDevice currentDevice];
     
-    if (device.orientation == UIDeviceOrientationPortrait ||
-        device.orientation == UIDeviceOrientationPortraitUpsideDown) {
-        //竖屏
-        self.controlView.playerStyle = FZAVPlayerViewStyleNormal;
-        [self rotateView:device.orientation];
-        
-    } else if (device.orientation == UIDeviceOrientationLandscapeLeft ||
-               device.orientation == UIDeviceOrientationLandscapeRight) {
-        if (self.disableFullScreen) {
-            
-        }else{
-            self.controlView.playerStyle = FZAVPlayerViewStyleFullScreen;
+    switch (device.orientation) {
+        case UIDeviceOrientationPortrait:
+        case UIDeviceOrientationPortraitUpsideDown:{
+            //竖屏
+            self.controlView.playerStyle = FZAVPlayerViewStyleNormal;
             [self rotateView:device.orientation];
-        }
-    } else{
-        // 不处理
-    }
-    
-}
-
-#pragma mark -- Play Func -------------
-
-
--(void)playWithUrl:(NSURL *)url {
-    _urlPath = url;
-    self.playerManager.item = [[FZAVPlayerItem alloc] initWithURL:url];
-}
-
-
--(void)play{
-    self.controlView.playerStatus  = FZAVPlayerStatusPlaying;
-    self.playerManager.playerStatus = FZAVPlayerStatusPlaying;
-}
-
-
--(void)pause{
-    self.controlView.playerStatus  = FZAVPlayerStatusPaused;
-    self.playerManager.playerStatus = FZAVPlayerStatusPaused;
-}
-
-- (void)stop{
-    self.controlView.playerStatus  = FZAVPlayerStatusStoped;
-    self.playerManager.playerStatus = FZAVPlayerStatusStoped;
-}
-
-
-#pragma mark -- FZPlayControlDelegate ---------
-/** 播放状态改变 */
-- (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(FZAVPlayerStatus)playerStatus{
-    
-    self.playerManager.playerStatus = playerStatus;
-    [self bringSubviewToFront:self.controlView];
-    
-    if ([self.delegate respondsToSelector:@selector(player:playerStatusChanged:)]) {
-        [self.delegate player:self playerStatusChanged:playerStatus];
-    }
-}
-
-- (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(FZAVPlayerViewStyle)playerStyle{
-    if (playerStyle == FZAVPlayerViewStyleFullScreen) {
-        [self zoomView:FZAVPlayerViewStyleFullScreen];
-    } else {
-        [self zoomView:FZAVPlayerViewStyleNormal];
-        
-    }
-    
-    //传递视图状态的改变
-    if ([self.delegate respondsToSelector:@selector(player:playerStyleChanged:)]){
-        [self.delegate player:self playerStyleChanged:playerStyle];
-    }
-}
-
-- (void)control:(FZAVPlayerControlView *)control progressChanged:(NSTimeInterval)timeInterval{
-    [self.playerManager playWithTimeInterval:timeInterval];
-}
-
-- (void)control:(FZAVPlayerControlView *)control sliderChanged:(BOOL)isSliding{
-    if (isSliding) {
-        self.playerManager.playerStatus = FZAVPlayerStatusPaused;
-    }
-    self.playerManager.isSliding = isSliding;
-}
-
-- (void)control:(FZAVPlayerControlView *)control didClickedWithBackButton:(UIButton *)button{
-    if ([self.delegate respondsToSelector:@selector(control:didClickedWithBackButton:)]){
-        [self.delegate player:self didClickedWithBackButton:button];
-    }
-}
-
-
-#pragma mark - FZPlayManagerDelegate ---
-/** 播放状态改变 */
-- (void)manager:(FZAVPlayerManager *)manager playerStatusChanged:(FZAVPlayerStatus)playerStatus{
-    
-    if (self.controlView.playerStatus == playerStatus) {
-        return;
-    }
-    self.controlView.playerStatus = playerStatus;
-    [self bringSubviewToFront:self.controlView];
-    
-    static NSInteger __tryCount = 0;
-    
-    switch (playerStatus) {
-        case FZAVPlayerStatusPlaying:{
-            [self play];
-            __tryCount = 0;
         } break;
-        case FZAVPlayerStatusFinished:{
-            if (self.autoReplay) {
-                [self play];
+        case UIDeviceOrientationLandscapeLeft:
+        case UIDeviceOrientationLandscapeRight:{
+            if (self.disableFullScreen) {
+                
+            }else{
+                self.controlView.playerStyle = FZAVPlayerViewStyleFullScreen;
+                [self rotateView:device.orientation];
             }
         } break;
-        case FZAVPlayerStatusFailed:
-        case FZAVPlayerStatusUnKown:{
-            if (__tryCount < 3) {
-                /** 重新设置 */
-                [self playWithUrl:self.urlPath];
-                __tryCount++;
-            }
-        } break;
-        default:
-            break;
-    } 
-    //传递播放状态的改变
-    if ([self.delegate respondsToSelector:@selector(player:playerStatusChanged:)]){
-        [self.delegate player:self playerStatusChanged:playerStatus ];
-    }
-    
-}
-/** 总时间改变 */
-- (void)manager:(FZAVPlayerManager *)manager playItem:(FZAVPlayerItem *)playItem totalIntervalChanged:(NSTimeInterval)totalInterval {
-    [self.controlView setTotalInterval:totalInterval];
-}
-/** 时间表更新(当前播放位置) */
-- (void)manager:(FZAVPlayerManager *)manager  playItem:(FZAVPlayerItem *)playItem progressIntervalChanged:(NSTimeInterval)progressInterval{
-    [self.controlView setProgressInterval:progressInterval];
-}
-/** 缓存时间改变 */
-- (void)manager:(FZAVPlayerManager *)manager playItem:(FZAVPlayerItem *)playItem bufferIntervalChanged:(NSTimeInterval)bufferInterval {
-    [self.controlView setBufferInterval:bufferInterval];
-}
-
-
--(void)zoomView:(FZAVPlayerViewStyle)style {
-    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
-    
-    if (style == FZAVPlayerViewStyleNormal) {
-        [UIView animateWithDuration:0.3 animations:^{
-            self.transform = CGAffineTransformIdentity;
-            [self switchFrame:self.originRect];
-        } completion:^(BOOL finished) {
-            [window setWindowLevel:UIWindowLevelNormal];
-            [self.showInView addSubview:self];
-            [self.showInView bringSubviewToFront:self];
-        }];
-    }else{
-        [UIView animateWithDuration:0.3 animations:^{
-            CGRect fullRect = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-            [self switchFrame:fullRect];
-            self.layer.cornerRadius = 0;
-        } completion:^(BOOL finished) {
-            [window setWindowLevel:UIWindowLevelStatusBar];
-            [window addSubview:self];
-            [window bringSubviewToFront:self];
-        }];
+        default: break;
     }
 }
-
-
 #pragma mark -- Rotation Func ----
-
-
-/**
- 旋转播放视图
- */
+/** 播放视图旋转 */
 -(void)rotateView:(UIDeviceOrientation)orientation {
     
     UIWindow *window = [[UIApplication sharedApplication] keyWindow];
@@ -298,7 +167,115 @@ FZPlayManagerDelegate
             [window bringSubviewToFront:self];
         }];
     }
-} 
+}
+
+#pragma mark -- Zoom Func ----
+/** 播放视图放缩 */
+-(void)zoomView:(FZAVPlayerViewStyle)style {
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    if (style == FZAVPlayerViewStyleNormal) {
+        [UIView animateWithDuration:0.3 animations:^{
+            self.transform = CGAffineTransformIdentity;
+            [self switchFrame:self.originRect];
+        } completion:^(BOOL finished) {
+            [window setWindowLevel:UIWindowLevelNormal];
+            [self.showInView addSubview:self];
+            [self.showInView bringSubviewToFront:self];
+        }];
+    }else{
+        [UIView animateWithDuration:0.3 animations:^{
+            CGRect fullRect = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+            [self switchFrame:fullRect];
+            self.layer.cornerRadius = 0;
+        } completion:^(BOOL finished) {
+            [window setWindowLevel:UIWindowLevelStatusBar];
+            [window addSubview:self];
+            [window bringSubviewToFront:self];
+        }];
+    }
+}
+
+
+#pragma mark -- FZPlayControlDelegate ---------
+/** 控制播放状态改变 */
+- (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(FZAVPlayerStatus)playerStatus{
+    
+    self.playerManager.playerStatus = playerStatus;
+    [self bringSubviewToFront:self.controlView];
+    
+    if ([self.delegate respondsToSelector:@selector(player:playerStatusChanged:)]) {
+        [self.delegate player:self playerStatusChanged:playerStatus];
+    }
+}
+/** 控制播放样式改变*/
+- (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(FZAVPlayerViewStyle)playerStyle{
+    if (playerStyle == FZAVPlayerViewStyleFullScreen) {
+        [self zoomView:FZAVPlayerViewStyleFullScreen];
+    } else {
+        [self zoomView:FZAVPlayerViewStyleNormal];
+    }
+    if ([self.delegate respondsToSelector:@selector(player:playerStyleChanged:)]){
+        [self.delegate player:self playerStyleChanged:playerStyle];
+    }
+}
+/** 控制播放进度改变 */
+- (void)control:(FZAVPlayerControlView *)control progressChanged:(NSTimeInterval)timeInterval{
+    [self.playerManager playFromTimeInterval:timeInterval];
+}
+/** 控制滑块正在滑动 */
+- (void)control:(FZAVPlayerControlView *)control sliderChanged:(BOOL)isSliding{
+    if (isSliding) {
+        self.playerManager.playerStatus = FZAVPlayerStatusPaused;
+    }
+    self.playerManager.isSliding = isSliding;
+}
+/** 控制返回按钮响应 */
+- (void)control:(FZAVPlayerControlView *)control didClickedWithBackButton:(UIButton *)button{
+    if ([self.delegate respondsToSelector:@selector(control:didClickedWithBackButton:)]){
+        [self.delegate player:self didClickedWithBackButton:button];
+    }
+}
+#pragma mark - FZPlayManagerDelegate ---
+/** 播放状态改变 */
+- (void)manager:(FZAVPlayerManager *)manager playerStatusChanged:(FZAVPlayerStatus)playerStatus{
+    if (self.controlView.playerStatus == playerStatus) return;
+    self.controlView.playerStatus = playerStatus;
+    switch (playerStatus) {
+        case FZAVPlayerStatusPlaying:{
+            self.retryCount = 0;
+        } break;
+        case FZAVPlayerStatusFinished:{
+            if (self.autoReplay) {
+                [self resume];
+            }
+        } break; 
+        case FZAVPlayerStatusFailed:
+        case FZAVPlayerStatusUnkown:{
+            if (self.retryCount < 3) {
+                /** 重新设置 */
+                [self playWithUrl:self.urlPath];
+                self.retryCount++;
+            }
+        } break;
+        default:
+            break;
+    }
+    if ([self.delegate respondsToSelector:@selector(player:playerStatusChanged:)]){
+        [self.delegate player:self playerStatusChanged:playerStatus ];
+    }
+}
+/** 播放总时长改变 */
+- (void)manager:(FZAVPlayerManager *)manager playItem:(FZAVPlayerItemHandler *)playItem totalIntervalChanged:(NSTimeInterval)totalInterval {
+    [self.controlView setTotalInterval:totalInterval];
+}
+/** 播放进度改变 */
+- (void)manager:(FZAVPlayerManager *)manager  playItem:(FZAVPlayerItemHandler *)playItem progressIntervalChanged:(NSTimeInterval)progressInterval{
+    [self.controlView setProgressInterval:progressInterval];
+}
+/** 缓存时间改变 */
+- (void)manager:(FZAVPlayerManager *)manager playItem:(FZAVPlayerItemHandler *)playItem bufferIntervalChanged:(NSTimeInterval)bufferInterval {
+    [self.controlView setBufferInterval:bufferInterval];
+}
 
 #pragma mark -- Set Func -----
 
@@ -313,7 +290,6 @@ FZPlayManagerDelegate
     self.controlView.frame = nRect;
     [self.controlView layoutIfNeeded];
 }
-
 
 
 -(void)setTitle:(NSString *)title {
@@ -363,17 +339,26 @@ FZPlayManagerDelegate
     self.controlView.showTitleBar = showTitleBar;
 }
 
-
 #pragma mark -- Lazy Func -----
 
 -(FZAVPlayerControlView *)controlView{
     if (_controlView == nil) {
-        _controlView = [[FZAVPlayerControlView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        _controlView = [[FZAVPlayerControlView alloc] init];
         _controlView.delegate = self;
         [self addSubview:_controlView];
     }
     return _controlView;
 }
+
+
+
+-(FZAVPlayerItemHandler *)itemHandler{
+    if (_itemHandler== nil) {
+        _itemHandler = [FZAVPlayerItemHandler new];
+    }
+    return _itemHandler;
+}
+
 
 -(FZAVPlayerManager *)playerManager {
     if (_playerManager == nil) {

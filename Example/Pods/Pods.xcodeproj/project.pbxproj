@@ -57,8 +57,8 @@
 		E003743EE20B8793A2BF2CB0AFA05EAE /* narrow_btn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = D18988A1983CCFBB0D27D1C2B0506D76 /* narrow_btn@3x.png */; };
 		E40CF04D7AEA4F86A9C0E4EB63E5452A /* btn_video_stop_90x90.png in Resources */ = {isa = PBXBuildFile; fileRef = F69FDEC304FC4AE32D19B079A77FE2E2 /* btn_video_stop_90x90.png */; };
 		E5610AB74B88AE6B8764F6EA19793776 /* icon_dot.png in Resources */ = {isa = PBXBuildFile; fileRef = F3C16C757104BA1A0AC7DDCBFAC0341B /* icon_dot.png */; };
-		EDEE8516E8913AB72BE7D437FF53E4F8 /* FZAVPlayerItem.h in Headers */ = {isa = PBXBuildFile; fileRef = D72D7C412C8C8845654F0C6C0EBB8F86 /* FZAVPlayerItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE73D9AEA91D37ABB6C5ECA467CC09C2 /* FZAVPlayerItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D6708669F953C53393A1AE57DF43C1B1 /* FZAVPlayerItem.m */; };
+		EDEE8516E8913AB72BE7D437FF53E4F8 /* FZAVPlayerItemHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = D72D7C412C8C8845654F0C6C0EBB8F86 /* FZAVPlayerItemHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE73D9AEA91D37ABB6C5ECA467CC09C2 /* FZAVPlayerItemHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D6708669F953C53393A1AE57DF43C1B1 /* FZAVPlayerItemHandler.m */; };
 		EFDB9F46F82B0D112CACDED37EAE4367 /* FZAVPlayer-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F2635A2A65C5325A0B4AF2966FE1456 /* FZAVPlayer-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F1AB060FF52A2809EA5A71497535F913 /* btn_video_play_90x90test.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E86228624E3B4302AC26B7E733B802B /* btn_video_play_90x90test.png */; };
 		F32BB3416A73426FE6A5F3FD8CAAF088 /* FZAVPlayerLightView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A85AA31E72B7541875BAD9095CC1261 /* FZAVPlayerLightView.m */; };
@@ -95,7 +95,7 @@
 		08512FAA85F0E79A7B3E0DF15182414F /* narrow_btn@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "narrow_btn@2x.png"; path = "FZAVPlayer/Assets/narrow_btn@2x.png"; sourceTree = "<group>"; };
 		0A85AA31E72B7541875BAD9095CC1261 /* FZAVPlayerLightView.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FZAVPlayerLightView.m; sourceTree = "<group>"; };
 		0E4A5C9854CAF65E8B0CD9F83F54FE3E /* UINavigationController+FZAVPlayer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "UINavigationController+FZAVPlayer.h"; sourceTree = "<group>"; };
-		0FD7E16B945BAF13809576EF573D3D0E /* Pods_FZAVPlayer_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_FZAVPlayer_Tests.framework; path = "Pods-FZAVPlayer_Tests.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0FD7E16B945BAF13809576EF573D3D0E /* Pods_FZAVPlayer_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FZAVPlayer_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1637C5B827B2ABA86EF255B2ABBF7D55 /* FZAVPlayerControlView.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FZAVPlayerControlView.m; sourceTree = "<group>"; };
 		1769E82FE7D4B6B785AA1A8486BA4B1E /* FZAVPlayerTitleBar.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FZAVPlayerTitleBar.h; sourceTree = "<group>"; };
 		1D2FC2080855A4E2F5E18B94DD27510B /* Pods-FZAVPlayer_Tests-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-FZAVPlayer_Tests-umbrella.h"; sourceTree = "<group>"; };
@@ -110,11 +110,11 @@
 		2FC7F3FAEFAE42F71200032CF8705BE9 /* UITabBarController+FZAVPalyer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "UITabBarController+FZAVPalyer.h"; sourceTree = "<group>"; };
 		2FDB2DBAABB2736ABF59895A3A2805C4 /* FZAVPlayer-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "FZAVPlayer-prefix.pch"; sourceTree = "<group>"; };
 		30A6431F9EB04C3E46687600656264CD /* Pods-FZAVPlayer_Example-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-FZAVPlayer_Example-Info.plist"; sourceTree = "<group>"; };
-		30B1EA26A9A6E3190FA05B30745FC377 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; path = README.md; sourceTree = "<group>"; };
+		30B1EA26A9A6E3190FA05B30745FC377 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		30D8122E2338A62DB3B90AEAD042E2A3 /* btn_video_stop_90x90@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "btn_video_stop_90x90@2x.png"; path = "FZAVPlayer/Assets/btn_video_stop_90x90@2x.png"; sourceTree = "<group>"; };
 		312B988EF117AE4DE76A268D970131FE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		36E8918E33F361C18A617A92E2482108 /* UIViewController+FZAVPlayer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "UIViewController+FZAVPlayer.h"; sourceTree = "<group>"; };
-		40902020646D0B38BCE96C52AFFB63A3 /* FZAVPlayer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = FZAVPlayer.framework; path = FZAVPlayer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		40902020646D0B38BCE96C52AFFB63A3 /* FZAVPlayer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FZAVPlayer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4319A2683E5C0DD47231492A0DAC8260 /* icon_dot@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "icon_dot@2x.png"; path = "FZAVPlayer/Assets/icon_dot@2x.png"; sourceTree = "<group>"; };
 		436BAA54A31999B53B3CC7115C55FE50 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		447BBAE48DFC7C21B495E262799BE7B4 /* FZAVPlayerView.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FZAVPlayerView.h; sourceTree = "<group>"; };
@@ -133,11 +133,11 @@
 		8657C847C0A1FC2F0D8F7B6C456963F3 /* Pods-FZAVPlayer_Example.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-FZAVPlayer_Example.modulemap"; sourceTree = "<group>"; };
 		89D52C3B547D656E016BE7CFDBC4C5F3 /* narrow_btn.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = narrow_btn.png; path = FZAVPlayer/Assets/narrow_btn.png; sourceTree = "<group>"; };
 		8B564442167BF11D490A64709E324286 /* Pods-FZAVPlayer_Example-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-FZAVPlayer_Example-dummy.m"; sourceTree = "<group>"; };
-		8CE0F575007C1FDEB1B20E3960FABB42 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENSE; sourceTree = "<group>"; };
+		8CE0F575007C1FDEB1B20E3960FABB42 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		8E457E52935E5890217DAF96F4E0D84D /* icon_dot@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "icon_dot@3x.png"; path = "FZAVPlayer/Assets/icon_dot@3x.png"; sourceTree = "<group>"; };
 		90B84111AA027EF96C2E93AB77140E0A /* left_back_icon_white_60x60.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = left_back_icon_white_60x60.png; path = FZAVPlayer/Assets/left_back_icon_white_60x60.png; sourceTree = "<group>"; };
 		9C3906442D9D3CA4CDFA372BF76B81C5 /* Pods-FZAVPlayer_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-FZAVPlayer_Example-acknowledgements.plist"; sourceTree = "<group>"; };
-		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		9DD88BC890ADB5E84EFF95818F462F39 /* ResourceBundle-FZAVPlayer-FZAVPlayer-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "ResourceBundle-FZAVPlayer-FZAVPlayer-Info.plist"; sourceTree = "<group>"; };
 		A1A2851B40B0683EF762B73F70517FEF /* btn_play_again_icon_160x80.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = btn_play_again_icon_160x80.png; path = FZAVPlayer/Assets/btn_play_again_icon_160x80.png; sourceTree = "<group>"; };
 		A776B7D631DA29F586CCADACC98EDF6B /* FZAVPlayerBundle.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FZAVPlayerBundle.h; sourceTree = "<group>"; };
@@ -156,11 +156,11 @@
 		D28571D8B9B99A0507E34D69FA334391 /* FZAVPlayerVolumeView.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FZAVPlayerVolumeView.m; sourceTree = "<group>"; };
 		D3F962242CE0784E2C5AC52BBB235297 /* Pods-FZAVPlayer_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-FZAVPlayer_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
 		D4BF3AE142371418BF6704EEBD12B031 /* FZAVPlayer-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "FZAVPlayer-Info.plist"; sourceTree = "<group>"; };
-		D6708669F953C53393A1AE57DF43C1B1 /* FZAVPlayerItem.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FZAVPlayerItem.m; sourceTree = "<group>"; };
-		D72D7C412C8C8845654F0C6C0EBB8F86 /* FZAVPlayerItem.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FZAVPlayerItem.h; sourceTree = "<group>"; };
+		D6708669F953C53393A1AE57DF43C1B1 /* FZAVPlayerItemHandler.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FZAVPlayerItemHandler.m; sourceTree = "<group>"; };
+		D72D7C412C8C8845654F0C6C0EBB8F86 /* FZAVPlayerItemHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FZAVPlayerItemHandler.h; sourceTree = "<group>"; };
 		DA2FB9EC0C97A0C4148D85EF1FA2CD02 /* FZAVPlayerTitleBar.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FZAVPlayerTitleBar.m; sourceTree = "<group>"; };
 		E3A94D61E56C689FB747A61A0B37F69D /* btn_video_play_90x90@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "btn_video_play_90x90@2x.png"; path = "FZAVPlayer/Assets/btn_video_play_90x90@2x.png"; sourceTree = "<group>"; };
-		E79691660C0D4FCCD4CC5332957BC7C9 /* FZAVPlayer.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = FZAVPlayer.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		E79691660C0D4FCCD4CC5332957BC7C9 /* FZAVPlayer.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; path = FZAVPlayer.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		F2F44A703459017BAC40CF051354B74E /* btn_play_again_icon_160x80@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "btn_play_again_icon_160x80@3x.png"; path = "FZAVPlayer/Assets/btn_play_again_icon_160x80@3x.png"; sourceTree = "<group>"; };
 		F3C16C757104BA1A0AC7DDCBFAC0341B /* icon_dot.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = icon_dot.png; path = FZAVPlayer/Assets/icon_dot.png; sourceTree = "<group>"; };
 		F65A19E19BB1F2821A560632AC23FEC6 /* video_amplification@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "video_amplification@2x.png"; path = "FZAVPlayer/Assets/video_amplification@2x.png"; sourceTree = "<group>"; };
@@ -169,8 +169,8 @@
 		F7118F330B0B10EA6118348045FD1819 /* FZAVPlayerToolBar.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FZAVPlayerToolBar.h; sourceTree = "<group>"; };
 		FB6784AA263EB145BFEC398CAB9E7748 /* FZAVPlayer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FZAVPlayer.h; path = FZAVPlayer/Classes/FZAVPlayer.h; sourceTree = "<group>"; };
 		FBEB85F27A02EED28FF9E41F412B11B9 /* Pods-FZAVPlayer_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-FZAVPlayer_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		FEBEFE4B15E751E572F6836705A05D13 /* FZAVPlayer.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = FZAVPlayer.bundle; path = "FZAVPlayer-FZAVPlayer.bundle"; sourceTree = BUILT_PRODUCTS_DIR; };
-		FF4628818C308EAB540B302DB51A6B7E /* Pods_FZAVPlayer_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_FZAVPlayer_Example.framework; path = "Pods-FZAVPlayer_Example.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FEBEFE4B15E751E572F6836705A05D13 /* FZAVPlayer.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FZAVPlayer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF4628818C308EAB540B302DB51A6B7E /* Pods_FZAVPlayer_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FZAVPlayer_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -258,8 +258,8 @@
 		52CA7EC36D3D15E29721348CFA31ACEA /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				D72D7C412C8C8845654F0C6C0EBB8F86 /* FZAVPlayerItem.h */,
-				D6708669F953C53393A1AE57DF43C1B1 /* FZAVPlayerItem.m */,
+				D72D7C412C8C8845654F0C6C0EBB8F86 /* FZAVPlayerItemHandler.h */,
+				D6708669F953C53393A1AE57DF43C1B1 /* FZAVPlayerItemHandler.m */,
 				BC15579D11E5AA43904B42802AB27661 /* FZAVPlayerManager.h */,
 				B6AFA5ACC66249C0B6697B8735C817A2 /* FZAVPlayerManager.m */,
 			);
@@ -441,7 +441,7 @@
 				50FB768F16354D9B96F1E98D053D86E4 /* FZAVPlayer.h in Headers */,
 				A867602D5B2D5FEB45F2B07E5AB70D5A /* FZAVPlayerBundle.h in Headers */,
 				C89C4C4E6E8AD237444555F1BC062F59 /* FZAVPlayerControlView.h in Headers */,
-				EDEE8516E8913AB72BE7D437FF53E4F8 /* FZAVPlayerItem.h in Headers */,
+				EDEE8516E8913AB72BE7D437FF53E4F8 /* FZAVPlayerItemHandler.h in Headers */,
 				7BEFA89F0E58D12A995AF7C297DF16E5 /* FZAVPlayerLightView.h in Headers */,
 				B994FCE1A7C22878B184107C83DE4CAB /* FZAVPlayerManager.h in Headers */,
 				915BF4A744E93A1211DC95C8F4EE82EC /* FZAVPlayerTitleBar.h in Headers */,
@@ -621,7 +621,7 @@
 				720887B199D36EEF67DB015558242417 /* FZAVPlayer-dummy.m in Sources */,
 				6A33D7C52BD19D1460304BF1364082DC /* FZAVPlayerBundle.m in Sources */,
 				D7AC4F8260CD32600626741866B552A3 /* FZAVPlayerControlView.m in Sources */,
-				EE73D9AEA91D37ABB6C5ECA467CC09C2 /* FZAVPlayerItem.m in Sources */,
+				EE73D9AEA91D37ABB6C5ECA467CC09C2 /* FZAVPlayerItemHandler.m in Sources */,
 				F32BB3416A73426FE6A5F3FD8CAAF088 /* FZAVPlayerLightView.m in Sources */,
 				D524129D5A4256F9894F60915D05DFD0 /* FZAVPlayerManager.m in Sources */,
 				D910638009724F717B66E76BAEB37866 /* FZAVPlayerTitleBar.m in Sources */,
@@ -765,8 +765,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				SYMROOT = "${SRCROOT}/../build";
 			};

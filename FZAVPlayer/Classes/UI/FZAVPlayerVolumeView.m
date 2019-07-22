@@ -16,6 +16,10 @@
 
 @property (nonatomic,strong) UIProgressView *progressView;
 
+@property (nonatomic,strong) MPVolumeView *volumeView;
+
+@property (nonatomic,strong) UISlider *volumeViewSlider;
+
 @end
 
 @implementation FZAVPlayerVolumeView
@@ -95,16 +99,17 @@
     
     CGPoint moviePoint = [sender translationInView:self];
     float volume = -moviePoint.y/2000;
-    volume += [FZAVPlayerVolumeView getSystemVolumValue];
+    volume += self.volumeViewSlider.value;
     if (volume >= 1) {
         volume = 1;
     }else if (volume <= -1) {
         volume = 0;
     }
     
-    [FZAVPlayerVolumeView setSysVolumWith:volume];
-    
-    [self showPercentValue:[FZAVPlayerVolumeView getSystemVolumValue]];
+    self.volumeViewSlider.value = volume;
+    [self showPercentValue:self.volumeViewSlider.value];
+    //[FZAVPlayerVolumeView setSysVolumWith:volume];
+    //[self showPercentValue:[FZAVPlayerVolumeView getSystemVolumValue]];
     
 }
 
@@ -113,35 +118,7 @@
     self.progressView.progress = value;
 }
 
-/*
- *获取系统音量滑块
- */
-+(UISlider*)getSystemVolumSlider{
-    static UISlider * volumeViewSlider = nil;
-    if (volumeViewSlider == nil) {
-        MPVolumeView *volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(10, 50, 200, 4)];
-        for (UIView* newView in volumeView.subviews) {
-            if ([newView.class.description isEqualToString:@"MPVolumeSlider"]){
-                volumeViewSlider = (UISlider*)newView;
-                break;
-            }
-        }
-    }
-    return volumeViewSlider;
-}
 
-/*
- *获取系统音量大小
- */
-+(CGFloat)getSystemVolumValue{
-    return [[self getSystemVolumSlider] value];
-}
-/*
- *设置系统音量大小
- */
-+(void)setSysVolumWith:(double)value{
-    [self getSystemVolumSlider].value = value;
-}
 
 
 #pragma mark -- Lazy Func ---
@@ -198,7 +175,35 @@
     return _progressView;
 }
 
+-(MPVolumeView *)volumeView{
+    if (_volumeView == nil) {
+        
+        /*
+         * 音量HUD是系统的HUD, 如果系统检测到没有显示 HUD, 会自动帮我们显示,
+         * 所以我们要做的就是, 自己创建一个 MPVolumeView 添加到view上面.
+         * 如果不需要系统的HUD的话, 我们可以把 MPVolumeView 的frame 设置为CGRectZero,
+         * 或者不设置frame, 或者设置到屏幕外面,都可以.同时clipsToBounds设为YES.
+         *
+         * 如果需要系统的HUD的话, 直接不添加到控制器的view上面就可以,
+         * 因为系统检测到没有 设置 MPVolumeView 就会自动添加
+         */
+        _volumeView = [[MPVolumeView alloc] initWithFrame:CGRectZero];
+        _volumeView.clipsToBounds = YES;
+        [self addSubview:_volumeView];
+    }
+    return _volumeView;
+}
 
-
+-(UISlider *)volumeViewSlider{
+    if (_volumeViewSlider == nil) {
+        for (UIView* newView in self.volumeView.subviews) {
+            if ([newView.class.description isEqualToString:@"MPVolumeSlider"]){
+                _volumeViewSlider = (UISlider*)newView;
+                break;
+            }
+        }
+    }
+    return _volumeViewSlider;
+}
 
 @end

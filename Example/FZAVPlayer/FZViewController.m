@@ -40,7 +40,7 @@
     
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-    [self.playerView play];
+    [self.playerView resume];
     
     
 }
@@ -74,7 +74,7 @@
         _playerView.showBackBtn = NO;
         _playerView.autoReplay = YES;
         _playerView.disableFullScreen = NO;
-        _playerView.disableAdjustBrightnessOrVolume = YES;
+        _playerView.disableAdjustBrightnessOrVolume = NO;
         _playerView.videoGravity = AVLayerVideoGravityResizeAspect;
         _playerView.showInView = self.scrollView;
     }

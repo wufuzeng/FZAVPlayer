@@ -55,13 +55,9 @@ typedef NS_ENUM(NSInteger,FZAVPlayerViewStyle) {
 /** 禁止调节亮度,音量 */
 @property (nonatomic,assign) BOOL disableAdjustBrightnessOrVolume;
 
-/**
- 播放url地址
- @param url url地址
- */
+/** 播放*/
 - (void) playWithUrl:(NSURL *)url;
-
-- (void) play;
+- (void) resume;
 - (void) pause;
 - (void) stop;
 

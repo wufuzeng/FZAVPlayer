@@ -27,6 +27,9 @@
 @property (nonatomic,strong) UIButton *playButton;
 @property (nonatomic,strong) UIButton *retryButton;
 
+/** 小菊花 */
+@property (nonatomic,strong) UIActivityIndicatorView *indicatorView;
+
 @property (nonatomic,strong) NSTimer        *timer;
 @property (nonatomic,assign) NSInteger      timeCount;
 @property (nonatomic,assign) NSTimeInterval totalInterVals;
@@ -45,10 +48,7 @@
 
 -(instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
-        
-        self.userInteractionEnabled = YES;
-        self.opaque                 = YES;
-        self.backgroundColor        = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.3];
+        self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.3];
         self.playerStatus  = FZAVPlayerStatusPrepare;
         self.playerStyle  = FZAVPlayerViewStyleNormal;
         [self timer];
@@ -57,18 +57,8 @@
     return self;
 }
 
--(void)layoutSubviews{
-    [super layoutSubviews];
-    
-    //[self setBufferInterval:self.bufferInterval];
-}
-
-
-
 -(void)setupViews{
-    
     [self contentView];
-    
     [self titleBar];
     [self toolBar];
     
@@ -77,52 +67,13 @@
     
     [self playButton];
     [self retryButton];
-    
+    [self indicatorView];
     [self.contentView bringSubviewToFront:self.playButton];
     [self.contentView bringSubviewToFront:self.retryButton];
     
-    self.title = @"标题";
 }
 
 
-
-#pragma mark - 设置播放器时间，进度等 ---
-
--(void)setFrame:(CGRect)frame{
-    [super setFrame:frame];
-    
-    [self.toolBar.playProgress layoutIfNeeded];
-}
-
--(void)setTotalInterval:(NSTimeInterval)totalInterval{
-    _totalInterval = totalInterval;
-    self.toolBar.totalTimeLabel.text = [FZAVPlayerControlView convertTime:totalInterval];
-    self.toolBar.playProgress.maximumValue = totalInterval;
-    _totalInterVals = totalInterval;
-}
-
--(void)setBufferInterval:(NSTimeInterval)bufferInterval{
-    _bufferInterval = bufferInterval;
-    CGFloat scale = 0;
-    if (bufferInterval) {
-        if (bufferInterval<self.totalInterval) {
-            scale = _bufferInterval/self.totalInterval;
-        }else{
-            scale = 1;
-        }
-    }else{
-        scale = 0;
-    }
-    self.toolBar.bufferProgress.value = scale;
-    self.toolBar.buffer_track_right.constant = -(1 - scale) * self.toolBar.bufferProgress.frame.size.width;
-    
-}
-
--(void)setProgressInterval:(NSTimeInterval)progressInterval{
-    _progressInterval = progressInterval;
-    self.toolBar.currentTimeLabel.text = [FZAVPlayerControlView convertTime:progressInterval];
-    self.toolBar.playProgress.value = progressInterval;
-}
 
 
 #pragma mark -- Customs Func ----
@@ -156,12 +107,7 @@
     self.timer = nil;
 }
 
-/**
- 转换成显示的时间
- 
- @param second 秒数
- @return 返回转换后的字符串
- */
+/** 转换成显示的时间 */
 + (NSString *)convertTime:(CGFloat)second{
     
     NSDate *d = [NSDate dateWithTimeIntervalSince1970:second];
@@ -198,6 +144,8 @@
 
 -(void)controlViewTapAction:(UITapGestureRecognizer*)sender{
     
+    if (self.playerStatus == FZAVPlayerStatusLoading) return;
+    
     if (self.contentView.alpha == 1) {
         [self hideControlView];
     }else{
@@ -233,13 +181,11 @@
     if (self.playerStatus == FZAVPlayerStatusPaused ||
         self.playerStatus == FZAVPlayerStatusPrepare ||
         self.playerStatus == FZAVPlayerStatusFinished) {
-        
         [self cancelTimer];
         [self showControlViewWithfireTimer:NO];
         
         self.playerStatus = FZAVPlayerStatusPlaying;
     } else if (self.playerStatus == FZAVPlayerStatusPlaying) {
-        
         [self cancelTimer];
         self.playerStatus = FZAVPlayerStatusPaused;
     }
@@ -286,6 +232,39 @@
 
 #pragma mark -- Set Func -------
 
+-(void)setFrame:(CGRect)frame{
+    [super setFrame:frame];
+    [self.toolBar.playProgress layoutIfNeeded];
+}
+
+-(void)setTotalInterval:(NSTimeInterval)totalInterval{
+    _totalInterval = totalInterval;
+    self.toolBar.totalTimeLabel.text = [FZAVPlayerControlView convertTime:totalInterval];
+    self.toolBar.playProgress.maximumValue = totalInterval;
+    _totalInterVals = totalInterval;
+}
+
+-(void)setBufferInterval:(NSTimeInterval)bufferInterval{
+    _bufferInterval = bufferInterval;
+    CGFloat scale = 0;
+    if (bufferInterval) {
+        if (bufferInterval<self.totalInterval) {
+            scale = _bufferInterval/self.totalInterval;
+        }else{
+            scale = 1;
+        }
+    }else{
+        scale = 0;
+    }
+    self.toolBar.bufferProgress.value = scale;
+    self.toolBar.buffer_track_right.constant = -(1 - scale) * self.toolBar.bufferProgress.frame.size.width;
+}
+
+-(void)setProgressInterval:(NSTimeInterval)progressInterval{
+    _progressInterval = progressInterval;
+    self.toolBar.currentTimeLabel.text = [FZAVPlayerControlView convertTime:progressInterval];
+    self.toolBar.playProgress.value = progressInterval;
+}
 -(void)setTitle:(NSString *)title{
     _title = title;
     self.titleBar.titleLabel.text = title;
@@ -302,17 +281,25 @@
     
     if (self.playerStatus == FZAVPlayerStatusPlaying ||
         self.playerStatus == FZAVPlayerStatusStoped) {
-        
         //播放,重播 按钮
         self.playButton.selected = YES;
         self.playButton.alpha = 1;
         self.retryButton.alpha = 0;
+        [self.indicatorView stopAnimating];
+        [self hideControlView];
     } else if (self.playerStatus == FZAVPlayerStatusPaused ||
                self.playerStatus == FZAVPlayerStatusSeeking) {
         //播放,重播 按钮
         self.playButton.selected = NO;
         self.playButton.alpha = 1;
         self.retryButton.alpha = 0;
+    } else if (self.playerStatus == FZAVPlayerStatusPaused ||
+               self.playerStatus == FZAVPlayerStatusSeeking) {
+        //播放,重播 按钮
+        self.playButton.alpha = 0;
+        self.retryButton.alpha = 0;
+        [self.indicatorView startAnimating];
+        [self showControlViewWithfireTimer:NO];
     } else if (self.playerStatus == FZAVPlayerStatusFinished ||
                self.playerStatus == FZAVPlayerStatusPrepare) {
         
@@ -324,8 +311,6 @@
         //重置toolBar
         self.toolBar.currentTimeLabel.text = @"00:00";
         self.toolBar.playProgress.value = 0;
-        
-//        [self showControlViewWithfireTimer:self.autoReplay];
     }
 }
 
@@ -401,8 +386,6 @@
         self.titleBar.backButton.alpha = 0;
     }
 }
- 
-    
 
 #pragma mark -- Lazy Func -------
 
@@ -650,7 +633,17 @@
 }
 
 
-
+-(UIActivityIndicatorView *)indicatorView{
+    if (_indicatorView == nil) {
+        _indicatorView = [UIActivityIndicatorView new];
+        _indicatorView.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.contentView addSubview:_indicatorView];
+        NSLayoutConstraint *centerX = [NSLayoutConstraint constraintWithItem:_retryButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0];
+        NSLayoutConstraint *centerY = [NSLayoutConstraint constraintWithItem:_retryButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
+        [self addConstraints:@[centerX,centerY]];
+    }
+    return _indicatorView;
+}
 
 -(NSTimer *)timer{
     if (_timer == nil) {

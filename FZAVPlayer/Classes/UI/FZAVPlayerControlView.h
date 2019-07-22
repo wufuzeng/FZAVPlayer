@@ -17,18 +17,18 @@ NS_ASSUME_NONNULL_BEGIN
 @class FZAVPlayerControlView;
 
 @protocol FZPlayControlDelegate <NSObject>
-/** 播放状态改变 */
+/** 控制播放状态改变 */
 - (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(FZAVPlayerStatus)playerStatus ;
-/** 视图状态改变*/
+/** 控制播放样式改变*/
 - (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(FZAVPlayerViewStyle)playerStyle ;
 @optional
 /** 缓存改变 */
 - (void)control:(FZAVPlayerControlView *)control bufferChanged:(NSTimeInterval)timeInterval;
-/** 进度条改变 */
+/** 控制播放进度改变 */
 - (void)control:(FZAVPlayerControlView *)control progressChanged:(NSTimeInterval)timeInterval;
-/** 滑块正在滑动 */
+/** 控制滑块正在滑动 */
 - (void)control:(FZAVPlayerControlView *)control sliderChanged:(BOOL)isSliding;
-/** 点击返回按钮 */
+/** 控制返回按钮响应 */
 - (void)control:(FZAVPlayerControlView *)control didClickedWithBackButton:(UIButton *)button;
 
 @end
