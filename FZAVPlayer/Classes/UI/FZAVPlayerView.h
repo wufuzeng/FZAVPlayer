@@ -54,7 +54,8 @@ typedef NS_ENUM(NSInteger,FZAVPlayerViewStyle) {
 @property (nonatomic,assign) BOOL disableFullScreen;
 /** 禁止调节亮度,音量 */
 @property (nonatomic,assign) BOOL disableAdjustBrightnessOrVolume;
-
+/** 播放结束 */
+@property (nonatomic,copy) void(^didPlayToEndTimeHandler)(void);
 /** 播放*/
 - (void) playWithUrl:(NSURL *)url;
 - (void) resume;

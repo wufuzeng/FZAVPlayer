@@ -248,6 +248,9 @@ FZPlayManagerDelegate
             if (self.autoReplay) {
                 [self resume];
             }
+            if (self.didPlayToEndTimeHandler) {
+                self.didPlayToEndTimeHandler();
+            }
         } break; 
         case FZAVPlayerStatusFailed:
         case FZAVPlayerStatusUnkown:{
