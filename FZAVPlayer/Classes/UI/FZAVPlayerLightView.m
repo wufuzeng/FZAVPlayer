@@ -8,8 +8,10 @@
 
 #import "FZAVPlayerLightView.h"
 
-
+#import "FZAVPlayerBundle.h"
 @interface FZAVPlayerLightView ()
+
+@property (nonatomic,strong) UIImageView *icon;
 
 @property (nonatomic,strong) UILabel *valueLabel;
 
@@ -29,7 +31,7 @@
 }
 
 -(void)setupViews{
-    
+    [self icon];
     [self valueLabel];
     [self progressView];
     self.valueLabel.alpha = self.progressView.alpha = 0;
@@ -97,6 +99,28 @@
 
 #pragma mark -- Lazy Func ---
 
+-(UIImageView *)icon{
+    if (_icon == nil) {
+        _icon = [UIImageView new];
+        _icon.contentMode = UIViewContentModeScaleAspectFit;
+        UIImage * image = [FZAVPlayerBundle fz_imageNamed:@"icon_light"];
+        
+        _icon.image = image;
+        _icon.transform = CGAffineTransformMakeRotation(M_PI_2);
+        
+        [self.progressView addSubview:_icon];
+        _icon.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        NSLayoutConstraint* right = [NSLayoutConstraint constraintWithItem:_icon attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.progressView attribute:NSLayoutAttributeLeft multiplier:1 constant:0];
+        NSLayoutConstraint* centerY = [NSLayoutConstraint constraintWithItem:_icon attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.progressView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
+        NSLayoutConstraint* width = [NSLayoutConstraint constraintWithItem:_icon attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:0 multiplier:1 constant:30];
+        
+        NSLayoutConstraint* height = [NSLayoutConstraint constraintWithItem:_icon attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:0 multiplier:1 constant:30];
+        [self.progressView addConstraints:@[right,centerY,width,height]];
+    }
+    return _icon;
+}
+
 
 -(UILabel *)valueLabel{
     if (_valueLabel == nil) {
@@ -109,12 +133,12 @@
         
         _valueLabel.translatesAutoresizingMaskIntoConstraints = NO;
 
-        NSLayoutConstraint* right = [NSLayoutConstraint constraintWithItem:_valueLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.progressView attribute:NSLayoutAttributeLeft multiplier:1 constant:0];
+        NSLayoutConstraint* left = [NSLayoutConstraint constraintWithItem:_valueLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.progressView attribute:NSLayoutAttributeRight multiplier:1 constant:0];
         NSLayoutConstraint* centerY = [NSLayoutConstraint constraintWithItem:_valueLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.progressView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
         NSLayoutConstraint* width = [NSLayoutConstraint constraintWithItem:_valueLabel attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:0 multiplier:1 constant:60];
 
         NSLayoutConstraint* height = [NSLayoutConstraint constraintWithItem:_valueLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:0 multiplier:1 constant:44];
-        [self.progressView addConstraints:@[right,centerY,width,height]];
+        [self.progressView addConstraints:@[left,centerY,width,height]];
         
         
     }

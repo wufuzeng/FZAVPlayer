@@ -171,13 +171,10 @@ FZAVPlayerItemDelegate
         }break;
         case FZAVPlayerStatusStoped:
         {
-            //暂停
             [self.player pause];
-            //取消跳转
             [self.player.currentItem cancelPendingSeeks];
-            //取消加载
             [self.player.currentItem.asset cancelLoading];
-            //移除
+            [self.player replaceCurrentItemWithPlayerItem:nil];
             [self.itemHandler removeItem];
         } break;
         case FZAVPlayerStatusFinished:

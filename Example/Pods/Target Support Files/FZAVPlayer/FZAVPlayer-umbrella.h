@@ -11,7 +11,7 @@
 #endif
 
 #import "FZAVPlayer.h"
-#import "FZAVPlayerItem.h"
+#import "FZAVPlayerItemHandler.h"
 #import "FZAVPlayerManager.h"
 #import "FZAVPlayerView.h"
 
