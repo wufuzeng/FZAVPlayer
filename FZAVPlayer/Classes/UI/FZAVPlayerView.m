@@ -342,6 +342,15 @@ FZPlayManagerDelegate
     self.controlView.showTitleBar = showTitleBar;
 }
 
+-(void)setControlViewDidAppearHandler:(void (^)(void))controlViewDidAppearHandler{
+    _controlViewDidAppearHandler = controlViewDidAppearHandler;
+    self.controlView.viewDidAppearHandler = controlViewDidAppearHandler;
+}
+
+-(void)setControlViewDidDisappearHandler:(void (^)(void))controlViewDidDisappearHandler{
+    _controlViewDidDisappearHandler = controlViewDidDisappearHandler;
+    self.controlView.viewDidDisappearHandler = controlViewDidDisappearHandler;
+}
 #pragma mark -- Lazy Func -----
 
 -(FZAVPlayerControlView *)controlView{
@@ -352,9 +361,7 @@ FZPlayManagerDelegate
     }
     return _controlView;
 }
-
-
-
+ 
 -(FZAVPlayerItemHandler *)itemHandler{
     if (_itemHandler== nil) {
         _itemHandler = [FZAVPlayerItemHandler new];

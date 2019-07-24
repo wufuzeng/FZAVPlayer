@@ -9,9 +9,94 @@
 #import "FZAVPlayerToolBar.h"
 
 #import "FZAVPlayerBundle.h"
+@interface FZAVPlayerSlider ()
+
+@property (nonatomic,assign) CGRect lastBounds;
+
+@end
+
+@implementation FZAVPlayerSlider
+
+- (instancetype)initWithFrame:(CGRect)frame{
+    if (self = [super initWithFrame:frame]) {
+        [self singleTapGesture];
+    }
+    return self;
+}
+
+#define SLIDER_X_BOUND 30
+#define SLIDER_Y_BOUND 40
+
+/**
+ * 滑块可触摸范围的大小
+ *
+ * @param bounds 是滑块的大小
+ * @param rect 是进度条的尺寸
+ * @param value UISlider 当前的值
+ * @return 滑块可触摸范围的大小
+ */
+- (CGRect)thumbRectForBounds:(CGRect)bounds trackRect:(CGRect)rect value:(float)value{
+    rect.origin.x = rect.origin.x;
+    rect.size.width = rect.size.width;
+    CGRect result = [super thumbRectForBounds:bounds trackRect:rect value:value];
+    self.lastBounds = result;
+    return result;
+}
+/** 检查点击事件点击范围是否能够交给self处理 */
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    //调用父类方法,找到能够处理event的view
+    UIView* result = [super hitTest:point withEvent:event];
+    if (result != self) {
+        /*
+         * 如果这个view不是self,我们给slider扩充一下响应范围,
+         * 这里的扩充范围数据就可以自己设置了
+         */
+        if ((point.y >= -15) &&
+            (point.y < (self.lastBounds.size.height + 15)) &&
+            (point.x >= 0 && point.x < CGRectGetWidth(self.bounds))) {
+            result = self;
+        }
+    }
+    return result;
+}
+/** 检查是点击事件的点是否在slider范围内 */
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
+    //调用父类判断
+    BOOL result = [super pointInside:point withEvent:event];
+    if (!result) {
+        //同理,如果不在slider范围类,扩充响应范围
+        if ((point.x >= (CGRectGetMinX(self.lastBounds) - 15)) &&
+            (point.x <= (CGRectGetMaxX(self.lastBounds) + 15)) &&
+            (point.y >= -15) &&
+            (point.y < (CGRectGetMaxY(self.lastBounds) + 15))) {
+            result = YES;
+        }
+    }
+    return result;
+}
+
+- (void)singleTapGestureAction:(UITapGestureRecognizer *)sender {
+    CGPoint touchPoint = [sender locationInView:self];
+    CGFloat value = (self.maximumValue - self.minimumValue) * (touchPoint.x / self.frame.size.width );
+    [self setValue:value animated:NO];
+    
+    if (self.singleTapAcitonHandler) {
+        self.singleTapAcitonHandler(self);
+    }
+}
+
+-(UITapGestureRecognizer *)singleTapGesture{
+    if (_singleTapGesture == nil) {
+        _singleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapGestureAction:)];
+        [self addGestureRecognizer:_singleTapGesture];
+    }
+    return _singleTapGesture;
+}
+
+@end
+
+
 @interface FZAVPlayerToolBar ()
-
-
 
 @end
 
@@ -34,9 +119,6 @@
     //self.bufferProgress.value = 0.5;
     //self.bufferProgress.frame.size.width
 }
-
- 
-
 
 
 #pragma mark -- Lazy Func ------
@@ -86,9 +168,9 @@
     return _totalTimeLabel;
 }
 
--(UISlider *)playProgress{
+-(FZAVPlayerSlider *)playProgress{
     if (_playProgress == nil){
-        _playProgress = [[UISlider alloc] init];
+        _playProgress = [[FZAVPlayerSlider alloc] init];
         _playProgress.minimumValue = 0;
         _playProgress.value = 0;
         _playProgress.tintColor = [UIColor whiteColor];

@@ -61,6 +61,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** 进度时间 */
 @property (nonatomic,assign) NSTimeInterval progressInterval;
 
+
+/** 控制视图显示 */
+@property (nonatomic,copy) void(^viewDidAppearHandler)(void);
+/** 控制视图消失 */
+@property (nonatomic,copy) void(^viewDidDisappearHandler)(void);
+
 @end
 
 

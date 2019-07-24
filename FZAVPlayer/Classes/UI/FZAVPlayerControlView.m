@@ -82,6 +82,10 @@
     [UIView animateWithDuration:0.3 animations:^{
         self.contentView.alpha = 1;
     } completion:^(BOOL finished) {
+        if (self.viewDidAppearHandler) {
+            self.viewDidAppearHandler();
+        }
+        
         if (fire) {
             [self fireTimer];
         }
@@ -92,6 +96,9 @@
     [UIView animateWithDuration:0.3 animations:^{
         self.contentView.alpha = 0;
     } completion:^(BOOL finished) {
+        if (self.viewDidDisappearHandler) {
+            self.viewDidDisappearHandler();
+        }
         [self cancelTimer];
     }];
 }
@@ -204,12 +211,13 @@
     
     //进度条变化回调
     if ([self.delegate respondsToSelector:@selector(control:progressChanged:)]) {
-        [self.delegate  control:self progressChanged:self.toolBar.playProgress.value];
+        [self.delegate  control:self progressChanged:sender.value];
     }
 }
 
 - (void)progressTouchDown:(UISlider *)sender {
-    
+    FZAVPlayerSlider *slider = (FZAVPlayerSlider *)sender;
+    slider.singleTapGesture.enabled = NO;
     self.isSliding = YES;
     
     [self cancelTimer];
@@ -220,7 +228,8 @@
 }
 
 - (void)progressTouchUp:(UISlider *)sender {
-    
+    FZAVPlayerSlider *slider = (FZAVPlayerSlider *)sender;
+    slider.singleTapGesture.enabled = YES;
     self.isSliding = NO;
     
     [self fireTimer];
@@ -368,7 +377,7 @@
     _disableFullScreen = disableFullScreen;
     if (_disableFullScreen == YES) {
         self.toolBar.fullScreenButton.alpha = 0;
-        self.toolBar.layoutFullScreenRight.constant = 45;
+        self.toolBar.layoutFullScreenRight.constant = 35;
     }else{
         self.toolBar.fullScreenButton.alpha = 1;
     }
@@ -449,6 +458,10 @@
         
         [_toolBar.playProgress addTarget:self action:@selector(progressTouchDown:) forControlEvents:UIControlEventTouchDown];
         [_toolBar.playProgress addTarget:self action:@selector(progressChanged:) forControlEvents:UIControlEventValueChanged];
+        __weak __typeof(self) weakSelf = self;
+        _toolBar.playProgress.singleTapAcitonHandler = ^(UISlider * _Nonnull sender) {
+            [weakSelf progressChanged:sender];
+        };
         [_toolBar.playProgress addTarget:self action:@selector(progressTouchUp:) forControlEvents:UIControlEventTouchUpInside|UIControlEventTouchUpOutside];
         [_toolBar.fullScreenButton addTarget:self action:@selector(fullScreenButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     }
@@ -636,11 +649,12 @@
 -(UIActivityIndicatorView *)indicatorView{
     if (_indicatorView == nil) {
         _indicatorView = [UIActivityIndicatorView new];
+        [_indicatorView startAnimating];
         _indicatorView.translatesAutoresizingMaskIntoConstraints = NO;
         [self.contentView addSubview:_indicatorView];
-        NSLayoutConstraint *centerX = [NSLayoutConstraint constraintWithItem:_retryButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0];
-        NSLayoutConstraint *centerY = [NSLayoutConstraint constraintWithItem:_retryButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
-        [self addConstraints:@[centerX,centerY]];
+        NSLayoutConstraint *centerX = [NSLayoutConstraint constraintWithItem:_indicatorView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0];
+        NSLayoutConstraint *centerY = [NSLayoutConstraint constraintWithItem:_indicatorView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
+        [self.contentView addConstraints:@[centerX,centerY]];
     }
     return _indicatorView;
 }

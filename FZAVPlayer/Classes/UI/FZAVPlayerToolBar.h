@@ -10,6 +10,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FZAVPlayerSlider : UISlider
+
+
+@property (nonatomic,strong) UITapGestureRecognizer *singleTapGesture;
+
+@property (nonatomic,copy) void (^singleTapAcitonHandler)(UISlider *sender);
+
+@end
+
+
 @interface FZAVPlayerToolBar : UIView
 
 @property (nonatomic,strong) UILabel *currentTimeLabel;
@@ -18,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,strong) UISlider *bufferProgress;
 @property (nonatomic,strong) NSLayoutConstraint *buffer_track_right;
-@property (nonatomic,strong) UISlider *playProgress;
+@property (nonatomic,strong) FZAVPlayerSlider *playProgress;
 
 @property (nonatomic,strong) UIButton *fullScreenButton;
 

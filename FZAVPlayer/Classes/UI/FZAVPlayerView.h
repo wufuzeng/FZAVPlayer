@@ -56,6 +56,13 @@ typedef NS_ENUM(NSInteger,FZAVPlayerViewStyle) {
 @property (nonatomic,assign) BOOL disableAdjustBrightnessOrVolume;
 /** 播放结束 */
 @property (nonatomic,copy) void(^didPlayToEndTimeHandler)(void);
+
+/** 控制视图显示 */
+@property (nonatomic,copy) void(^controlViewDidAppearHandler)(void);
+/** 控制视图消失 */
+@property (nonatomic,copy) void(^controlViewDidDisappearHandler)(void);
+
+
 /** 播放*/
 - (void) playWithUrl:(NSURL *)url;
 - (void) resume;
