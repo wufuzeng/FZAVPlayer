@@ -25,10 +25,7 @@ FZPlayManagerDelegate
 @property (nonatomic,strong) FZAVPlayerControlView *controlView;
 /** 原始的rect */
 @property (nonatomic,assign) CGRect originRect;
-/** 视频链接 */
-@property (nonatomic,strong) NSURL *urlPath;
-/** 重试次数 */
-@property (nonatomic,assign) NSInteger retryCount;
+
 
 @end
 
@@ -43,42 +40,44 @@ FZPlayManagerDelegate
     }
     return self;
 }
-
--(void)dealloc{
-    NSLog(@"%@释放了",NSStringFromClass([self class]));
-    [self removeObserver];
-}
-
+ 
 #pragma mark -- SetupViews Func -----
 /** 配置 */
 -(void)setupView{
-    self.retryCount = 0;
     self.backgroundColor = [UIColor blackColor];
     self.layer.masksToBounds = YES;
 }
 
 #pragma mark -- Play Func -------------
 
--(void)playWithUrl:(NSURL *)url {
-    self.urlPath = url;
-    [self.itemHandler replaceItemWihtURL:url];
-    self.playerManager.itemHandler = self.itemHandler;
+-(void)play{
+    [self.playerManager play];
 }
-
--(void)resume{
-    self.controlView.playerStatus  = FZAVPlayerStatusPlaying;
-    self.playerManager.playerStatus = FZAVPlayerStatusPlaying;
+-(void)retryPlay{
+    [self.playerManager retryPlay];
 }
-
 -(void)pause{
-    self.controlView.playerStatus  = FZAVPlayerStatusPaused;
-    self.playerManager.playerStatus = FZAVPlayerStatusPaused;
+    [self.playerManager pause];
+}
+- (void)stop{
+    [self.playerManager destroy];
+}
+- (void)playNext{
+    [self.playerManager playNext];
+}
+- (void)playPrevious{
+    [self.playerManager playPrevious];
 }
 
-- (void)stop{
-    self.controlView.playerStatus  = FZAVPlayerStatusStoped;
-    self.playerManager.playerStatus = FZAVPlayerStatusStoped;
+/** 播放速度 */
+- (void)playWithRate:(CGFloat)rate{
+    [self.playerManager playWithRate:rate];
 }
+/** 移动指定时间 */
+- (void)seekToTimestamp:(NSTimeInterval)timestamp{
+    [self.playerManager seekToTimestamp:timestamp];
+}
+ 
 
 #pragma mark -- Notice Func -------
 
@@ -197,15 +196,14 @@ FZPlayManagerDelegate
 
 
 #pragma mark -- FZPlayControlDelegate ---------
-/** 控制播放状态改变 */
-- (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(FZAVPlayerStatus)playerStatus{
-    
-    self.playerManager.playerStatus = playerStatus;
-    [self bringSubviewToFront:self.controlView];
-    
-    if ([self.delegate respondsToSelector:@selector(player:playerStatusChanged:)]) {
-        [self.delegate player:self playerStatusChanged:playerStatus];
-    }
+
+/** 控制播放 */
+- (void)control:(FZAVPlayerControlView *)control playAction:(UIButton *)sender{
+    [self play];
+}
+/** 控制暂停 */
+- (void)control:(FZAVPlayerControlView *)control pauseAction:(UIButton *)sender{
+    [self pause];
 }
 /** 控制播放样式改变*/
 - (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(FZAVPlayerViewStyle)playerStyle{
@@ -220,7 +218,7 @@ FZPlayManagerDelegate
 }
 /** 控制播放进度改变 */
 - (void)control:(FZAVPlayerControlView *)control progressChanged:(NSTimeInterval)timeInterval{
-    [self.playerManager playFromTimeInterval:timeInterval];
+    [self.playerManager seekToTimestamp:timeInterval];
 }
 /** 控制滑块正在滑动 */
 - (void)control:(FZAVPlayerControlView *)control sliderChanged:(BOOL)isSliding{
@@ -238,27 +236,30 @@ FZPlayManagerDelegate
 #pragma mark - FZPlayManagerDelegate ---
 /** 播放状态改变 */
 - (void)manager:(FZAVPlayerManager *)manager playerStatusChanged:(FZAVPlayerStatus)playerStatus{
-    if (self.controlView.playerStatus == playerStatus) return;
     self.controlView.playerStatus = playerStatus;
     switch (playerStatus) {
         case FZAVPlayerStatusPlaying:{
-            self.retryCount = 0;
         } break;
         case FZAVPlayerStatusFinished:{
-            if (self.autoReplay) {
-                [self resume];
+            if (self.singleCirclePlay) {
+                [self play];
+            }else{
+                if (self.autoReplay) {
+                    [self playNext];
+                }else{
+                    [self pause];
+                }
+                if ([manager.videoQueue.lastObject isEqual:manager.currentAsset]) {
+                    if ([self.delegate respondsToSelector:@selector(didPlayToEndTimeHandler)]) {
+                        [self.delegate didPlayToEndTimeHandler];
+                    }
+                }
             }
-            if (self.didPlayToEndTimeHandler) {
-                self.didPlayToEndTimeHandler();
-            }
+            
         } break; 
         case FZAVPlayerStatusFailed:
         case FZAVPlayerStatusUnkown:{
-            if (self.retryCount < 3) {
-                /** 重新设置 */
-                [self playWithUrl:self.urlPath];
-                self.retryCount++;
-            }
+            [self retryPlay];
         } break;
         default:
             break;
@@ -268,15 +269,15 @@ FZPlayManagerDelegate
     }
 }
 /** 播放总时长改变 */
-- (void)manager:(FZAVPlayerManager *)manager playItem:(FZAVPlayerItemHandler *)playItem totalIntervalChanged:(NSTimeInterval)totalInterval {
+- (void)manager:(FZAVPlayerManager *)manager playItem:(AVPlayerItem *)playItem totalIntervalChanged:(NSTimeInterval)totalInterval {
     [self.controlView setTotalInterval:totalInterval];
 }
 /** 播放进度改变 */
-- (void)manager:(FZAVPlayerManager *)manager  playItem:(FZAVPlayerItemHandler *)playItem progressIntervalChanged:(NSTimeInterval)progressInterval{
+- (void)manager:(FZAVPlayerManager *)manager  playItem:(AVPlayerItem *)playItem progressIntervalChanged:(NSTimeInterval)progressInterval{
     [self.controlView setProgressInterval:progressInterval];
 }
 /** 缓存时间改变 */
-- (void)manager:(FZAVPlayerManager *)manager playItem:(FZAVPlayerItemHandler *)playItem bufferIntervalChanged:(NSTimeInterval)bufferInterval {
+- (void)manager:(FZAVPlayerManager *)manager playItem:(AVPlayerItem *)playItem bufferIntervalChanged:(NSTimeInterval)bufferInterval {
     [self.controlView setBufferInterval:bufferInterval];
 }
 
@@ -331,9 +332,23 @@ FZPlayManagerDelegate
     self.playerManager.playerLayer.videoGravity = _videoGravity;
 }
 
+-(void)setVideoURL:(NSURL *)videoURL{
+    _videoURL = videoURL;
+    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:videoURL options:nil];
+    self.playerManager.videoQueue = @[asset];
+}
+
+-(void)setAsset:(AVAsset *)asset{
+    _asset = asset;
+    self.playerManager.videoQueue = @[asset];
+}
+
+-(void)setVideoQueue:(NSArray<AVAsset *> *)videoQueue{
+    _videoQueue = videoQueue;
+    self.playerManager.videoQueue = videoQueue;
+}
 -(void)setAutoReplay:(BOOL)autoReplay {
     _autoReplay = autoReplay;
-    self.playerManager.autoReplay = autoReplay;
     self.controlView.autoReplay = autoReplay;
 }
 
@@ -342,21 +357,24 @@ FZPlayManagerDelegate
     self.controlView.showTitleBar = showTitleBar;
 }
 
--(void)setControlViewDidAppearHandler:(void (^)(void))controlViewDidAppearHandler{
-    _controlViewDidAppearHandler = controlViewDidAppearHandler;
-    self.controlView.viewDidAppearHandler = controlViewDidAppearHandler;
-}
-
--(void)setControlViewDidDisappearHandler:(void (^)(void))controlViewDidDisappearHandler{
-    _controlViewDidDisappearHandler = controlViewDidDisappearHandler;
-    self.controlView.viewDidDisappearHandler = controlViewDidDisappearHandler;
-}
+ 
 #pragma mark -- Lazy Func -----
 
 -(FZAVPlayerControlView *)controlView{
     if (_controlView == nil) {
         _controlView = [[FZAVPlayerControlView alloc] init];
         _controlView.delegate = self;
+        __weak __typeof(self)weakSelf = self;
+        _controlView.viewDidAppearHandler = ^{
+            if ([weakSelf.delegate respondsToSelector:@selector(controlViewDidAppearHandler)]) {
+                [weakSelf.delegate controlViewDidAppearHandler];
+            }
+        };
+        _controlView.viewDidDisappearHandler = ^{
+            if ([weakSelf.delegate respondsToSelector:@selector(controlViewDidDisappearHandler)]) {
+                [weakSelf.delegate controlViewDidDisappearHandler];
+            }
+        };
         [self addSubview:_controlView];
     }
     return _controlView;
@@ -377,6 +395,12 @@ FZPlayManagerDelegate
         [self.layer addSublayer:_playerManager.playerLayer];
     }
     return _playerManager;
+}
+
+
+-(void)dealloc{
+    NSLog(@"%@释放了",NSStringFromClass([self class]));
+    [self removeObserver];
 }
 
 

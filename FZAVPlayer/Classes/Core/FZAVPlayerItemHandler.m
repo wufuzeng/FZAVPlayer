@@ -21,49 +21,9 @@
 
 /** 配置播放项目 */
 - (void)replaceItemWihtURL:(NSURL *)url{
-/*
- * AVURLAssetPreferPreciseDurationAndTimingKey:
- *     这个选项对应的值是布尔值，默认为 @(NO)，
- *     当设为 @(YES) 时表示 asset 应该提供精确的时长，
- *     并能根据时间准确地随机访问，
- *     提供这样的能力是需要开销更大的计算的。
- *     当你只是想播放视频时，你可以不设置这个选项，
- *     但是如果你想把这个 asset 添加到一个composition（AVMutableComposition）中去做进一步编辑，
- *     你通常需要精确的随机访问，这时你最好设置这个选项为 YES。
- *
- * AVURLAssetReferenceRestrictionsKey:
- *     这个选项对应的值是 AVAssetReferenceRestrictions enum。
- *     有一些 asset 可以保护一些指向外部数据的引用，这个选项用来表示对外部数据访问的限制。
- *     具体含义参见 AVAssetReferenceRestrictions。
- *
- * AVURLAssetHTTPCookiesKey:
- *     这个选项用来设置 asset 通过 HTTP 请求发送的 HTTP cookies，当然 cookies 只能发给同站。具体参见文档。
- *
- * AVURLAssetAllowsCellularAccessKey:
- *     这个选项对应的值是布尔值，默认为 @(YES)。表示 asset 是否能使用移动网络资源。
- *
- * AVURLAssetHTTPHeaderFieldsKey:
- *     这个选项用来设置一个请求头的认证, 这个参数是非公开的API,但是经多人测试项目上线不受影响。
- *     播放视频只需一个url就能进行这样太不安全了,别人可以轻易的抓包盗链.
- *     因此此需要为视频链接做一个请求头的认证。
- * NSMutableDictionary * headers = [NSMutableDictionary dictionary];
- * headers[@"User-Agent"] = @"yourHeader";
- * AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url
- *                                            options:@{
- *                                                 @"AVURLAssetHTTPHeaderFieldsKey":headers
- *                                            }];
- */
-    if (self.playerItem) {
-        [self removeItem];
-    }
-    
     if (url) {
-        AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url
-                                                   options:nil];
-        self.playerItem = [AVPlayerItem playerItemWithAsset:urlAsset];
-        if (self.playerItem) {
-            [self addObserver];
-        }
+        AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:nil];
+        [self replaceItemWihtAsset:asset];
     }else{
         [self removeItem];
     }
@@ -71,8 +31,53 @@
 }
 
 
-
-
+/** 配置播放项目 */
+- (void)replaceItemWihtAsset:(AVAsset *)asset{
+    /*
+     * AVURLAssetPreferPreciseDurationAndTimingKey:
+     *     这个选项对应的值是布尔值，默认为 @(NO)，
+     *     当设为 @(YES) 时表示 asset 应该提供精确的时长，
+     *     并能根据时间准确地随机访问，
+     *     提供这样的能力是需要开销更大的计算的。
+     *     当你只是想播放视频时，你可以不设置这个选项，
+     *     但是如果你想把这个 asset 添加到一个composition（AVMutableComposition）中去做进一步编辑，
+     *     你通常需要精确的随机访问，这时你最好设置这个选项为 YES。
+     *
+     * AVURLAssetReferenceRestrictionsKey:
+     *     这个选项对应的值是 AVAssetReferenceRestrictions enum。
+     *     有一些 asset 可以保护一些指向外部数据的引用，这个选项用来表示对外部数据访问的限制。
+     *     具体含义参见 AVAssetReferenceRestrictions。
+     *
+     * AVURLAssetHTTPCookiesKey:
+     *     这个选项用来设置 asset 通过 HTTP 请求发送的 HTTP cookies，当然 cookies 只能发给同站。具体参见文档。
+     *
+     * AVURLAssetAllowsCellularAccessKey:
+     *     这个选项对应的值是布尔值，默认为 @(YES)。表示 asset 是否能使用移动网络资源。
+     *
+     * AVURLAssetHTTPHeaderFieldsKey:
+     *     这个选项用来设置一个请求头的认证, 这个参数是非公开的API,但是经多人测试项目上线不受影响。
+     *     播放视频只需一个url就能进行这样太不安全了,别人可以轻易的抓包盗链.
+     *     因此此需要为视频链接做一个请求头的认证。
+     * NSMutableDictionary * headers = [NSMutableDictionary dictionary];
+     * headers[@"User-Agent"] = @"yourHeader";
+     * AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url
+     *                                            options:@{
+     *                                                 @"AVURLAssetHTTPHeaderFieldsKey":headers
+     *                                            }];
+     */
+    if (self.playerItem) {
+        [self removeItem];
+    }
+    
+    if (asset) {
+        self.playerItem = [AVPlayerItem playerItemWithAsset:asset];
+        if (self.playerItem) {
+            [self addObserver];
+        }
+    }else{
+        [self removeItem];
+    }    
+}
 
 #pragma mark -- NSKeyValueObserving ------
 

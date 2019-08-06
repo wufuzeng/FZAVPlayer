@@ -21,8 +21,8 @@
 
 @property (nonatomic,strong) FZAVPlayerTitleBar *titleBar;
 @property (nonatomic,strong) FZAVPlayerToolBar  *toolBar;
-@property (nonatomic,strong) FZAVPlayerLightView      *lightControlView;
-@property (nonatomic,strong) FZAVPlayerVolumeView     *volumeControlView;
+@property (nonatomic,strong) FZAVPlayerLightView  *lightControlView;
+@property (nonatomic,strong) FZAVPlayerVolumeView *volumeControlView;
 
 @property (nonatomic,strong) UIButton *playButton;
 @property (nonatomic,strong) UIButton *retryButton;
@@ -185,23 +185,42 @@
 }
 
 -(void)playButtonAction:(UIButton *)sender {
-    if (self.playerStatus == FZAVPlayerStatusPaused ||
-        self.playerStatus == FZAVPlayerStatusPrepare ||
-        self.playerStatus == FZAVPlayerStatusFinished) {
-        [self cancelTimer];
-        [self showControlViewWithfireTimer:NO];
-        
-        self.playerStatus = FZAVPlayerStatusPlaying;
-    } else if (self.playerStatus == FZAVPlayerStatusPlaying) {
+    if (sender.selected) {
         [self cancelTimer];
         self.playerStatus = FZAVPlayerStatusPaused;
+        if ([self.delegate respondsToSelector:@selector(control:pauseAction:)]) {
+            [self.delegate control:self pauseAction:sender];
+        }
+    }else{
+        [self cancelTimer];
+        [self showControlViewWithfireTimer:NO];
+        self.playerStatus = FZAVPlayerStatusPlaying;
+        if ([self.delegate respondsToSelector:@selector(control:playAction:)]) {
+            [self.delegate control:self playAction:sender];
+        }
     }
+//    if (self.playerStatus == FZAVPlayerStatusPaused ||
+//        self.playerStatus == FZAVPlayerStatusPrepare ||
+//        self.playerStatus == FZAVPlayerStatusFinished) {
+//        [self cancelTimer];
+//        [self showControlViewWithfireTimer:NO];
+//        self.playerStatus = FZAVPlayerStatusPlaying;
+//        if ([self.delegate respondsToSelector:@selector(control:playAction:)]) {
+//            [self.delegate control:self playAction:sender];
+//        }
+//    } else if (self.playerStatus == FZAVPlayerStatusPlaying) {
+//        [self cancelTimer];
+//        self.playerStatus = FZAVPlayerStatusPaused;
+//        if ([self.delegate respondsToSelector:@selector(control:pauseAction:)]) {
+//            [self.delegate control:self pauseAction:sender];
+//        }
+//    }
 }
 
 -(void)retryButtonAction:(UIButton *)sender {
     self.playerStatus = FZAVPlayerStatusPlaying;
-    if ([self.delegate respondsToSelector:@selector(control:playerStatusChanged:)]) {
-        [self.delegate control:self playerStatusChanged:self.playerStatus ];
+    if ([self.delegate respondsToSelector:@selector(control:playAction:)]) {
+        [self.delegate control:self playAction:sender];
     }
 }
 
@@ -281,46 +300,56 @@
 
 -(void)setPlayerStatus:(FZAVPlayerStatus)playerStatus {
     
-    if (_playerStatus != playerStatus) {
-        _playerStatus = playerStatus;
-        if ([self.delegate respondsToSelector:@selector(control:playerStatusChanged:)]) {
-            [self.delegate control:self playerStatusChanged:playerStatus ];
-        }
+    _playerStatus = playerStatus;
+    switch (playerStatus) {
+        case FZAVPlayerStatusPrepare:{
+            //重置toolBar
+            self.toolBar.currentTimeLabel.text = @"00:00";
+            self.toolBar.playProgress.value = 0;
+        } break;
+        case FZAVPlayerStatusPlaying:{
+            //播放,重播 按钮
+            self.playButton.selected = YES;
+            self.playButton.alpha = 1;
+            self.retryButton.alpha = 0;
+            [self.indicatorView stopAnimating];
+        } break;
+        case FZAVPlayerStatusPaused:
+        case FZAVPlayerStatusSeeking:{
+            //播放,重播 按钮
+            self.playButton.selected = NO;
+            self.playButton.alpha = 1;
+            self.retryButton.alpha = 0;
+        } break;
+        case FZAVPlayerStatusLoading:{
+            //播放,重播 按钮
+            self.playButton.selected = NO;
+            self.playButton.alpha = 1;
+            self.retryButton.alpha = 0;
+            [self.indicatorView startAnimating];
+            [self showControlViewWithfireTimer:NO];
+        } break;
+        case FZAVPlayerStatusFinished:{
+            //播放,重播 按钮
+            self.playButton.selected = NO;
+            self.playButton.alpha = 0;
+            if (self.autoReplay) {
+                self.retryButton.alpha = 0;
+            }else{
+                self.retryButton.alpha = 1;
+            }
+            [self showControlViewWithfireTimer:YES];
+            //重置toolBar
+            self.toolBar.currentTimeLabel.text = @"00:00";
+            self.toolBar.playProgress.value = 0;
+        } break;
+        case FZAVPlayerStatusStoped:{
+            
+        } break;
+        default:
+            break;
     }
-    
-    if (self.playerStatus == FZAVPlayerStatusPlaying ||
-        self.playerStatus == FZAVPlayerStatusStoped) {
-        //播放,重播 按钮
-        self.playButton.selected = YES;
-        self.playButton.alpha = 1;
-        self.retryButton.alpha = 0;
-        [self.indicatorView stopAnimating];
-        [self hideControlView];
-    } else if (self.playerStatus == FZAVPlayerStatusPaused ||
-               self.playerStatus == FZAVPlayerStatusSeeking) {
-        //播放,重播 按钮
-        self.playButton.selected = NO;
-        self.playButton.alpha = 1;
-        self.retryButton.alpha = 0;
-    } else if (self.playerStatus == FZAVPlayerStatusPaused ||
-               self.playerStatus == FZAVPlayerStatusSeeking) {
-        //播放,重播 按钮
-        self.playButton.alpha = 0;
-        self.retryButton.alpha = 0;
-        [self.indicatorView startAnimating];
-        [self showControlViewWithfireTimer:NO];
-    } else if (self.playerStatus == FZAVPlayerStatusFinished ||
-               self.playerStatus == FZAVPlayerStatusPrepare) {
-        
-        //播放,重播 按钮
-        self.playButton.selected = NO;
-        self.playButton.alpha = 0;
-        self.retryButton.alpha = 1;
-        
-        //重置toolBar
-        self.toolBar.currentTimeLabel.text = @"00:00";
-        self.toolBar.playProgress.value = 0;
-    }
+ 
 }
 
 -(void)setPlayerStyle:(FZAVPlayerViewStyle)playerStyle {
@@ -332,6 +361,8 @@
         }
     }
     if (_playerStyle == FZAVPlayerViewStyleFullScreen) {
+        self.lightControlView.userInteractionEnabled =  true;
+        self.volumeControlView.userInteractionEnabled = true;
         self.toolBar.fullScreenButton.selected = NO;
         self.titleBar.backButton.alpha = 1;
         self.layoutTitleBarTop.constant = 0;
@@ -357,6 +388,9 @@
         }
         
     } else if (_playerStyle == FZAVPlayerViewStyleNormal) {
+        self.lightControlView.userInteractionEnabled = !self.disableAdjustBrightnessOrVolume;
+        self.volumeControlView.userInteractionEnabled = !self.disableAdjustBrightnessOrVolume;
+        
         self.layoutTitleBarHeight.constant = self.titleBarHeight;
         
         self.toolBar.fullScreenButton.selected = YES;

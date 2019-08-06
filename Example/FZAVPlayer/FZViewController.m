@@ -24,8 +24,14 @@
     [self scrollView];
     //    NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loginvideo" ofType:@"mp4"]];
     NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"Test" ofType:@"mov"]];
+    NSURL *url2 = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"3" ofType:@"mp4"]];
     self.playerView.title = @"屌丝男士";
-    [self.playerView playWithUrl:url];
+    
+    self.playerView.videoQueue = @[
+                                   [AVURLAsset assetWithURL:url2],
+                                   [AVURLAsset assetWithURL:url]
+                                   ];
+    [self.playerView play];
 }
     
 -(void)viewDidDisappear:(BOOL)animated{
@@ -40,7 +46,7 @@
     
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-    [self.playerView resume];
+    [self.playerView play];
     
     
 }
@@ -74,6 +80,7 @@
         _playerView.showBackBtn = NO;
         _playerView.autoReplay = YES;
         _playerView.disableFullScreen = NO;
+        _playerView.singleCirclePlay = YES;
         _playerView.disableAdjustBrightnessOrVolume = NO;
         _playerView.videoGravity = AVLayerVideoGravityResizeAspect;
         _playerView.showInView = self.scrollView;

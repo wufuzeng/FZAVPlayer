@@ -12,13 +12,16 @@
 #import "FZAVPlayerView.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-
+ 
 @class FZAVPlayerControlView;
 
 @protocol FZPlayControlDelegate <NSObject>
-/** 控制播放状态改变 */
-- (void)control:(FZAVPlayerControlView *)control playerStatusChanged:(FZAVPlayerStatus)playerStatus ;
+
+/** 控制播放 */
+- (void)control:(FZAVPlayerControlView *)control playAction:(UIButton *)sender;
+/** 控制暂停 */
+- (void)control:(FZAVPlayerControlView *)control pauseAction:(UIButton *)sender;
+
 /** 控制播放样式改变*/
 - (void)control:(FZAVPlayerControlView *)control playerStyleChanged:(FZAVPlayerViewStyle)playerStyle ;
 @optional

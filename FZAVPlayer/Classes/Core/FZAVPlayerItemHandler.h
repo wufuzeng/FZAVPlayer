@@ -44,7 +44,9 @@ typedef NS_ENUM(NSInteger,FZAVPlayerStatus) {
 
 /** 配置播放项目 */
 - (void)replaceItemWihtURL:(NSURL *)url;
--(void)removeItem;
+/** 配置播放项目 */
+- (void)replaceItemWihtAsset:(AVAsset *)asset;
+- (void)removeItem;
 
 /** 获取缓存时长 */
 + (NSTimeInterval)seekableDuration:(AVPlayerItem *)item;
