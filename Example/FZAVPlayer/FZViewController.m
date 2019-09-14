@@ -25,13 +25,16 @@
     //    NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loginvideo" ofType:@"mp4"]];
     NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"Test" ofType:@"mov"]];
     NSURL *url2 = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"3" ofType:@"mp4"]];
+    
+    NSURL *url3 = [NSURL URLWithString:@"https://mlboos.oss-cn-hangzhou.aliyuncs.com/31343CommunityFile/UserUpLoadFile/Video/514500605205714-31343.mp4"];
     self.playerView.title = @"屌丝男士";
     
     self.playerView.videoQueue = @[
+                                   [AVURLAsset assetWithURL:url3],
                                    [AVURLAsset assetWithURL:url2],
                                    [AVURLAsset assetWithURL:url]
                                    ];
-    [self.playerView play];
+    //[self.playerView play];
 }
     
 -(void)viewDidDisappear:(BOOL)animated{

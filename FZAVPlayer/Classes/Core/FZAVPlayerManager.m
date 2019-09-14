@@ -125,6 +125,8 @@ FZAVPlayerItemDelegate
     [self.itemHandler removeItem];
     _player = nil;
     _itemHandler = nil;
+    _playerLayer = nil;
+    _playerObserver = nil;
     if (self.isUsingRemoteCommand) {
         [self removeMediaPlayerRemoteCommands];
     }
